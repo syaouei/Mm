@@ -99,14 +99,13 @@ export function buildLobby(scene, colliders) {
   box(group, null, xL1 + T - xE, H, T, (xE + xL1 + T) / 2, H / 2, zN - T / 2, { material: wallMat });
   colliders.push(makeCollider(xE, xL1 + T, zN - T, zN, 0, H, '展演廳北牆'));
   text(['多功能展演廳', 'Auditorium'], 3.2, 1.4, (xE + xL1) / 2, 2.0, zN + 0.02, 0, C.signBlue);
-  // 消防栓櫃與 4F 平面圖看板（照片：在電梯旁的牆上）
-  // 消防栓：貼在突出牆朝大廳的西面（電梯左手邊）
-  // 突出牆西面（電梯左手邊）：消防栓在北段、4F 平面圖在南段，兩者同一面牆
-  const zHyd = zS + 8.0, zPlan = zS + 9.05, xFaceW = xL1 - 2.4;   // 面與樓梯深度切齊
-  box(group, C.hydrant, 0.2, 1.2, 0.9, xFaceW - 0.1, 1.2, zHyd);
-  decal(group, hydrantTex(), 0.9, 1.2, xFaceW - 0.205, 1.2, zHyd, -Math.PI / 2);
-  decal(group, planTex(), 0.9, 1.3, xFaceW - 0.205, 1.55, zPlan, -Math.PI / 2);
-  colliders.push(makeCollider(xFaceW - 0.2, xFaceW, zHyd - 0.45, zHyd + 0.45, 0, 1.65, '消防栓箱'));
+  // 消防栓與 4F 平面圖：貼在 B 教室北牆的北面（大廳內側），消防栓在西、平面圖在東
+  const wallN = z0;                  // B 北牆的北面（大廳側）：牆在 z0 ~ z0+0.2
+  const xHyd = 7.1, xPlan = 8.2;     // 依玩家視線中心（x ≈ 7.7）對稱排列
+  box(group, C.hydrant, 0.9, 1.2, 0.2, xHyd, 1.2, wallN - 0.1);             // 櫃體貼齊牆面北側
+  decal(group, hydrantTex(), 0.9, 1.2, xHyd, 1.2, wallN - 0.205, Math.PI);   // 櫃體北面
+  decal(group, planTex(), 0.9, 1.3, xPlan, 1.55, wallN - 0.01, Math.PI);    // 牆面北面
+  colliders.push(makeCollider(xHyd - 0.45, xHyd + 0.45, wallN - 0.2, wallN, 0, 1.65, '消防栓箱'));
 
   // ---------- 東牆：一段牆、樓梯、電梯 1、電梯 2 ----------
   box(group, null, T, H, D, xL1 + T / 2, H / 2, zc, { material: wallMat });
