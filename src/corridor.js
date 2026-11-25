@@ -162,7 +162,7 @@ export function buildCorridor(scene, colliders) {
   box(group, C.corridorSkirting, sd, sh, len, xW + sd / 2, sh / 2, zc);
 
   // ---------- 茶水間（照片）：挖在北端白牆西側，入口朝走廊；瓷磚牆、木紋橱櫃＋水槽、飲水機、格栅天花板 ----------
-  const PW = 2.0, PL = 3.4;                 // 寬（東西）× 深（南北）
+  const PW = 3.4, PL = 2.0;                 // 寬（東西）× 深（南北）：長寬已對調
   const pIn = xW - PW, pOut = xW - T, pN = zNend, pS = zNend + PL, pT = 0.12;
   const pXc = (pIn + pOut) / 2, pZc = (pN + pS) / 2;
   const tileMat = new THREE.MeshStandardMaterial({ map: pantryWallWrap(), roughness: 0.4 });
