@@ -16,6 +16,8 @@ export class Player {
     this.pitch = 0;
     this.keys = new Set();
     this.locked = false;
+    // active：鍵盤可操作。滑鼠鎖定成功時為 true；鎖定不被允許（例如嵌在 iframe 裡）時也由 main.js 設為 true，改用拖曳轉頭
+    this.active = false;
     // 觸控搖桿的類比輸入（-1~1），由 touch.js 寫入
     this.analog = { right: 0, forward: 0 };
     this.analogSprint = false;
@@ -32,12 +34,13 @@ export class Player {
     });
     document.addEventListener('pointerlockchange', () => {
       this.locked = document.pointerLockElement === domElement;
+      this.active = this.locked;
       if (!this.locked) this.keys.clear();
       this.onLockChange?.(this.locked);
     });
     document.addEventListener('mousemove', this.onMouseMove);
     document.addEventListener('keydown', (e) => {
-      if (!this.locked) return;
+      if (!this.active) return;
       if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ShiftLeft', 'ShiftRight'].includes(e.code)) {
         this.keys.add(e.code);
         e.preventDefault();
@@ -55,7 +58,8 @@ export class Player {
   }
 
   onMouseMove(e) {
-    if (!this.locked) return;
+    // 已鎖定：直接轉頭；未鎖定：按住左鍵拖曳才轉頭
+    if (!this.locked && !(this.active && (e.buttons & 1))) return;
     // 部分瀏覽器在鎖定瞬間會送出異常大的位移，略過
     if (Math.abs(e.movementX) > 400 || Math.abs(e.movementY) > 400) return;
     this.look(e.movementX, e.movementY, CONFIG.player.mouseSensitivity);

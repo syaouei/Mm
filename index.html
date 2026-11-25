@@ -13,7 +13,7 @@
         overscroll-behavior: none; -webkit-user-select: none; user-select: none;
         -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
       }
-      canvas { display: block; touch-action: none; }
+      canvas { display: block; touch-action: none; position: fixed; left: 0; top: 0; }
       #hud {
         position: fixed; top: calc(8px + env(safe-area-inset-top)); left: calc(8px + env(safe-area-inset-left));
         padding: 6px 10px; font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace; white-space: pre;
@@ -75,7 +75,8 @@
         <div class="desktop-only">
           <b>點擊畫面開始</b><br />
           滑鼠：看　W A S D：移動　Shift：衝刺<br />
-          F3：碰撞框　ESC：解除滑鼠鎖定
+          F3：碰撞框　ESC：解除滑鼠鎖定<br />
+          <small>若滑鼠沒有被鎖定：按住左鍵拖曳轉頭</small>
         </div>
         <div class="touch-only">
           <b>點一下開始</b><br />

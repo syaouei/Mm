@@ -40,6 +40,8 @@ player.onLockChange = (locked) => {
 // 用手指點 → 進入觸控模式；用滑鼠點 → 鎖定游標
 overlay.addEventListener('pointerup', (e) => {
   if (e.pointerType === 'mouse') {
+    player.active = true;
+    overlay.classList.add('hidden');
     player.requestLock();
   } else {
     touch.enable();
