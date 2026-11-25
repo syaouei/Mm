@@ -86,7 +86,9 @@ export function buildCorridor(scene, colliders) {
   // ---------- 東牆（A、B 的走廊側）：北段實牆；A、B 之間的門洞；方形空間那段沒有牆 ----------
   // 東牆：北段實牆；zS ~ zN 之間補牆（大廳北牆之前的缺口，避免看到牆後空白）；A、B 段有門洞
   const zNn = zS + CONFIG.lobby.northOffset;
-  const eastSegs = [...solidWithHoles(zNend, zS, []), ...solidWithHoles(zS, zNn, []), ...solidWithHoles(z0, z1, eastHoles)];
+  // 茶水間入口：北端東牆上的門洞（茶水間在北端東側，約 1 坪）
+  const pantryHole = [zNend + 0.6, zNend + 1.5];
+  const eastSegs = [...solidWithHoles(zNend, zS, [pantryHole]), ...solidWithHoles(zS, zNn, []), ...solidWithHoles(z0, z1, eastHoles)];
   for (const [a, b] of eastSegs) {
     box(group, null, T, H, b - a, xMid, H / 2, (a + b) / 2, { material: wallMat });
     colliders.push(makeCollider(xE, xI, a, b, 0, H, '走廊東牆'));
@@ -126,7 +128,8 @@ export function buildCorridor(scene, colliders) {
       box(group, C.blind, 0.1, 0.12, bay - 0.1, xW + 0.05, top + 0.07, bz);
     }
   };
-  glassRun(zNend, cA);
+  // 北端這段玻璃改為白牆（依需求）
+  box(group, null, T, H, cA - zNend, xW - T / 2, H / 2, (zNend + cA) / 2, { material: wallMat });
   glassRun(cB, z1);
   // 窗戶牆的碰撞：玻璃段與 C 的實牆段各自一個；C 的門洞留空（門開時可以進出）
   colliders.push(makeCollider(xW - T, xW, zNend, cA, 0, H, '窗戶牆'));
@@ -145,6 +148,30 @@ export function buildCorridor(scene, colliders) {
     box(group, C.corridorSkirting, sd, sh, b - a, xE - sd / 2, sh / 2, (a + b) / 2);
   }
   box(group, C.corridorSkirting, sd, sh, len, xW + sd / 2, sh / 2, zc);
+
+  // ---------- 茶水間（約 1 坪）：北端、東牆外側，入口朝走廊 ----------
+  const pIn = xI, pOut = xI + 1.8, pN = zNend, pS = zNend + 1.8, pT = 0.12;
+  const pXc = (pIn + pOut) / 2;
+  box(group, null, pOut - pIn + 2 * pT, H, pT, pXc, H / 2, pN - pT / 2, { material: wallMat });   // 北牆
+  box(group, null, pOut - pIn + 2 * pT, H, pT, pXc, H / 2, pS + pT / 2, { material: wallMat });   // 南牆
+  box(group, null, pT, H, pS - pN, pOut + pT / 2, H / 2, (pN + pS) / 2, { material: wallMat });   // 東牆
+  colliders.push(makeCollider(pIn, pOut + pT, pN - pT, pN, 0, H, '茶水間北牆'));
+  colliders.push(makeCollider(pIn, pOut + pT, pS, pS + pT, 0, H, '茶水間南牆'));
+  colliders.push(makeCollider(pOut, pOut + pT, pN, pS, 0, H, '茶水間東牆'));
+  // 入口門框上方過樑（門洞高 2.1 m）
+  box(group, null, T, H - 2.1, pantryHole[1] - pantryHole[0], xMid, (2.1 + H) / 2, (pantryHole[0] + pantryHole[1]) / 2, { material: wallMat });
+  // 地板與天花板（茶水間範圍）
+  const pFloor = new THREE.Mesh(new THREE.PlaneGeometry(pOut - pIn, pS - pN), mat('#c9ccd0', { roughness: 0.6 }));
+  pFloor.rotation.x = -Math.PI / 2; pFloor.position.set(pXc, 0.003, (pN + pS) / 2); pFloor.receiveShadow = true; group.add(pFloor);
+  const pCeil = new THREE.Mesh(new THREE.PlaneGeometry(pOut - pIn, pS - pN), mat(C.ceiling, { roughness: 0.95 }));
+  pCeil.rotation.x = Math.PI / 2; pCeil.position.set(pXc, H - 0.01, (pN + pS) / 2); group.add(pCeil);
+  // 橱台（沿東牆）與水槽、冰箱
+  box(group, '#e9e9e6', 0.6, 0.9, pS - pN - 0.2, pOut - 0.3, 0.45, (pN + pS) / 2);
+  box(group, '#d6d6d6', 0.62, 0.04, pS - pN - 0.2, pOut - 0.3, 0.92, (pN + pS) / 2);
+  box(group, C.metal, 0.4, 0.02, 0.3, pOut - 0.3, 0.935, pN + 0.5, { cast: true });
+  box(group, '#f2f2f0', 0.6, 1.2, 0.6, pIn + 0.3, 0.6, pS - 0.3, { cast: true });
+  colliders.push(makeCollider(pOut - 0.6, pOut, pN + 0.1, pS - 0.1, 0, 0.94, '茶水間橱台'));
+  colliders.push(makeCollider(pIn + 0.0, pIn + 0.6, pS - 0.6, pS, 0, 1.2, '冰箱'));
 
   // ---------- 北端牆 ----------
   box(group, null, K.width, H, T, xc, H / 2, zNend - T / 2, { material: wallMat });
