@@ -18,9 +18,13 @@ export class Debug {
     window.addEventListener('keydown', (e) => {
       if (e.code === 'F3') {
         e.preventDefault(); // 避免觸發瀏覽器的「尋找」
-        this.boxes.visible = !this.boxes.visible;
+        this.toggleColliders();
       }
     });
+  }
+
+  toggleColliders() {
+    this.boxes.visible = !this.boxes.visible;
   }
 
   update(dt, player) {
@@ -34,7 +38,7 @@ export class Debug {
     this.hud.textContent =
       `x: ${player.x.toFixed(2)}  z: ${player.z.toFixed(2)}\n` +
       `FPS: ${this.fps}\n` +
-      `F3 碰撞框: ${this.boxes.visible ? '開' : '關'}`;
+      `碰撞框 (F3): ${this.boxes.visible ? '開' : '關'}`;
   }
 }
 

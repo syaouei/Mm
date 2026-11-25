@@ -4,9 +4,12 @@ import { buildRoom } from './room.js';
 import { buildFurniture } from './furniture.js';
 import { Player } from './player.js';
 import { Debug } from './debug.js';
+import { TouchControls } from './touch.js';
 
+const isTouchDevice = window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, CONFIG.render.maxPixelRatio));
+const maxRatio = isTouchDevice ? CONFIG.render.touchMaxPixelRatio : CONFIG.render.maxPixelRatio;
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxRatio));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -28,9 +31,21 @@ renderer.shadowMap.needsUpdate = true;
 const player = new Player(camera, renderer.domElement, colliders);
 const debug = new Debug(scene, colliders);
 
+const touch = new TouchControls(player, renderer.domElement, debug);
+
 const overlay = document.getElementById('overlay');
-player.onLockChange = (locked) => overlay.classList.toggle('hidden', locked);
-overlay.addEventListener('click', () => renderer.domElement.requestPointerLock());
+player.onLockChange = (locked) => {
+  if (!touch.enabled) overlay.classList.toggle('hidden', locked);
+};
+// 用手指點 → 進入觸控模式；用滑鼠點 → 鎖定游標
+overlay.addEventListener('pointerup', (e) => {
+  if (e.pointerType === 'mouse') {
+    player.requestLock();
+  } else {
+    touch.enable();
+    overlay.classList.add('hidden');
+  }
+});
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;

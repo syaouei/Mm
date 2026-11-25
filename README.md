@@ -25,6 +25,27 @@ npm run dev
 
 左上角會顯示玩家座標（x, z）與 FPS。
 
+### 手機 / 平板
+
+| 操作 | 功能 |
+| --- | --- |
+| 點一下 | 開始（進入觸控模式） |
+| 螢幕左半邊拖曳 | 虛擬搖桿移動（按下處就是搖桿中心，推越遠走越快） |
+| 螢幕右半邊拖曳 | 轉動視角 |
+| 「跑」按鈕 | 切換衝刺 |
+| 「框」按鈕 | 顯示 / 隱藏碰撞框 |
+| ⛶ 按鈕 | 全螢幕（iPhone Safari 不支援，所以不會出現） |
+
+兩隻手指可以同時操作：左手移動，右手轉頭。建議橫向使用。觸控相關數值在 `config.js` 的 `touch` 區塊。
+
+**用手機開啟：** 電腦和手機連同一個 Wi-Fi，在電腦執行
+
+```bash
+npm run dev:lan
+```
+
+終端機會列出 `Network: http://192.168.x.x:5173/`，用手機瀏覽器開這個網址即可。如果打不開，請檢查電腦防火牆是否允許 5173 port。
+
 ## 程式結構
 
 ```
@@ -35,6 +56,7 @@ src/room.js         地板、牆、柱子、天花板設備、門、白板、講
 src/furniture.js    課桌椅（InstancedMesh），並回傳碰撞框
 src/player.js       Pointer Lock、視角、移動、AABB 碰撞
 src/debug.js        HUD 與 F3 碰撞框
+src/touch.js        手機 / 平板觸控操作（虛擬搖桿、拖曳轉頭、按鈕）
 reference/          實際教室照片
 ```
 
@@ -86,4 +108,4 @@ reference/          實際教室照片
 - 課桌椅用 InstancedMesh 繪製，同材質的零件合成一次 draw call
 - 只有一盞方向光產生陰影。場景是靜態的，陰影只計算一次（`shadowMap.autoUpdate = false`）
 - PointLight 預設 4 盞，不產生陰影（`lighting.pointLightCount`）
-- pixel ratio 上限 1.5（`render.maxPixelRatio`）。如果 FPS 不夠，可以調低這個值或 `shadowMapSize`
+- pixel ratio 上限：桌機 1.5（`render.maxPixelRatio`），觸控裝置 1.25（`render.touchMaxPixelRatio`）。如果 FPS 不夠，可以調低這個值或 `shadowMapSize`

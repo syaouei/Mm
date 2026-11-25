@@ -16,6 +16,9 @@ export class Player {
     this.pitch = 0;
     this.keys = new Set();
     this.locked = false;
+    // 觸控搖桿的類比輸入（-1~1），由 touch.js 寫入
+    this.analog = { right: 0, forward: 0 };
+    this.analogSprint = false;
     this.pitchLimit = (P.pitchLimitDeg * Math.PI) / 180;
 
     camera.rotation.order = 'YXZ';
@@ -23,8 +26,9 @@ export class Player {
     this.syncCamera();
 
     this.onMouseMove = this.onMouseMove.bind(this);
-    domElement.addEventListener('click', () => {
-      if (!this.locked) domElement.requestPointerLock();
+    // 只有滑鼠點擊才鎖定游標；觸控裝置沒有 Pointer Lock
+    domElement.addEventListener('pointerup', (e) => {
+      if (e.pointerType === 'mouse' && !this.locked) this.requestLock();
     });
     document.addEventListener('pointerlockchange', () => {
       this.locked = document.pointerLockElement === domElement;
@@ -43,13 +47,24 @@ export class Player {
     window.addEventListener('blur', () => this.keys.clear());
   }
 
+  requestLock() {
+    try {
+      const p = this.dom.requestPointerLock();
+      if (p && p.catch) p.catch(() => {});
+    } catch { /* 不支援 Pointer Lock 的瀏覽器 */ }
+  }
+
   onMouseMove(e) {
     if (!this.locked) return;
     // 部分瀏覽器在鎖定瞬間會送出異常大的位移，略過
     if (Math.abs(e.movementX) > 400 || Math.abs(e.movementY) > 400) return;
-    const s = CONFIG.player.mouseSensitivity;
-    this.yaw -= e.movementX * s;
-    this.pitch -= e.movementY * s;
+    this.look(e.movementX, e.movementY, CONFIG.player.mouseSensitivity);
+  }
+
+  // 依螢幕位移（像素）轉動視角，滑鼠與觸控共用
+  look(dx, dy, sensitivity) {
+    this.yaw -= dx * sensitivity;
+    this.pitch -= dy * sensitivity;
     this.pitch = Math.max(-this.pitchLimit, Math.min(this.pitchLimit, this.pitch));
   }
 
@@ -60,10 +75,17 @@ export class Player {
     if (this.keys.has('KeyS')) f -= 1;
     if (this.keys.has('KeyD')) r += 1;
     if (this.keys.has('KeyA')) r -= 1;
+    let amount = 1; // 鍵盤固定全速；搖桿依推的幅度
+    let sprint = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
+    if (f === 0 && r === 0) {
+      f = this.analog.forward;
+      r = this.analog.right;
+      amount = Math.min(1, Math.hypot(f, r));
+      sprint = this.analogSprint;
+    }
 
     if (f !== 0 || r !== 0) {
-      const sprint = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
-      const speed = sprint ? P.sprintSpeed : P.walkSpeed;
+      const speed = (sprint ? P.sprintSpeed : P.walkSpeed) * amount;
       const sin = Math.sin(this.yaw), cos = Math.cos(this.yaw);
       // 前方 = (-sin, -cos)，右方 = (cos, -sin)
       let dx = -sin * f + cos * r;

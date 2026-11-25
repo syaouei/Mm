@@ -2,37 +2,88 @@
 <html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#202326" />
     <title>教室原型</title>
     <style>
-      html, body { margin: 0; height: 100%; overflow: hidden; background: #202326; }
-      canvas { display: block; }
+      html, body {
+        margin: 0; height: 100%; overflow: hidden; background: #202326;
+        overscroll-behavior: none; -webkit-user-select: none; user-select: none;
+        -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+      }
+      canvas { display: block; touch-action: none; }
       #hud {
-        position: fixed; top: 8px; left: 8px; padding: 6px 10px;
-        font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace; white-space: pre;
+        position: fixed; top: calc(8px + env(safe-area-inset-top)); left: calc(8px + env(safe-area-inset-left));
+        padding: 6px 10px; font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace; white-space: pre;
         color: #fff; background: rgba(0, 0, 0, 0.55); border-radius: 4px; pointer-events: none;
       }
       #overlay {
         position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-        background: rgba(0, 0, 0, 0.45); color: #fff; cursor: pointer;
+        padding: 16px; background: rgba(0, 0, 0, 0.45); color: #fff; cursor: pointer; touch-action: none;
         font: 16px/1.7 system-ui, -apple-system, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
         text-align: center;
       }
       #overlay.hidden { display: none; }
       #overlay b { font-size: 22px; }
+      .touch-only { display: none; }
+      @media (pointer: coarse) {
+        .touch-only { display: block; }
+        .desktop-only { display: none; }
+      }
       #crosshair {
         position: fixed; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px;
         background: rgba(255, 255, 255, 0.8); border-radius: 50%; pointer-events: none;
       }
+
+      /* ---- 觸控介面 ---- */
+      .touch-ui { display: none; }
+      .touch-ui.active { display: block; }
+      .joy-base {
+        position: fixed; width: 112px; height: 112px; margin: -56px 0 0 -56px; border-radius: 50%;
+        background: rgba(255, 255, 255, 0.12); border: 2px solid rgba(255, 255, 255, 0.45);
+        pointer-events: none; display: none;
+      }
+      .joy-base.show { display: block; }
+      .joy-knob {
+        position: absolute; left: 50%; top: 50%; width: 48px; height: 48px; border-radius: 50%;
+        background: rgba(255, 255, 255, 0.75); transform: translate(-50%, -50%);
+      }
+      .joy-hint {
+        position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+        padding: 6px 12px; border-radius: 16px; background: rgba(0, 0, 0, 0.5); color: #fff; white-space: nowrap;
+        font: 14px system-ui, -apple-system, "Noto Sans TC", sans-serif; pointer-events: none;
+        transition: opacity 0.6s;
+      }
+      .joy-hint.gone { opacity: 0; }
+      .touch-btn {
+        position: fixed; width: 52px; height: 52px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.6);
+        background: rgba(0, 0, 0, 0.4); color: #fff; font: 600 18px system-ui, -apple-system, "Noto Sans TC", sans-serif;
+        touch-action: none; padding: 0;
+      }
+      .touch-btn.on { background: rgba(43, 116, 128, 0.9); border-color: #fff; }
+      .btn-sprint { width: 68px; height: 68px; right: calc(24px + env(safe-area-inset-right)); bottom: calc(28px + env(safe-area-inset-bottom)); }
+      .btn-box { top: calc(10px + env(safe-area-inset-top)); right: calc(12px + env(safe-area-inset-right)); font-size: 16px; }
+      .btn-fs { top: calc(10px + env(safe-area-inset-top)); right: calc(74px + env(safe-area-inset-right)); }
     </style>
   </head>
   <body>
     <div id="crosshair"></div>
     <div id="overlay">
       <div>
-        <b>點擊畫面開始</b><br />
-        滑鼠：看　W A S D：移動　Shift：衝刺<br />
-        F3：碰撞框　ESC：解除滑鼠鎖定
+        <div class="desktop-only">
+          <b>點擊畫面開始</b><br />
+          滑鼠：看　W A S D：移動　Shift：衝刺<br />
+          F3：碰撞框　ESC：解除滑鼠鎖定
+        </div>
+        <div class="touch-only">
+          <b>點一下開始</b><br />
+          左手拖曳：移動（推越遠走越快）<br />
+          右手拖曳：轉頭<br />
+          「跑」：切換衝刺　「框」：碰撞框<br />
+          建議橫向使用
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.js"></script>

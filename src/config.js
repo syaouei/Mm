@@ -121,8 +121,17 @@ export const CONFIG = {
     start: { fromDoorWall: 0.4, fromBackWall: 0.8 },
   },
 
+  // 手機 / 平板觸控操作
+  touch: {
+    joystickRadius: 56,     // 虛擬搖桿半徑（px）
+    deadZone: 0.12,         // 搖桿中心的無效區（比例）
+    moveZone: 0.45,         // 螢幕左側多少比例用來開啟搖桿
+    lookSensitivity: 0.005, // 拖曳轉頭靈敏度（弧度 / px）
+  },
+
   render: {
     maxPixelRatio: 1.5,
+    touchMaxPixelRatio: 1.25, // 觸控裝置降低解析度以維持流暢
     fov: 70,
   },
 };
