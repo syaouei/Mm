@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>教室原型</title>
+    <style>
+      html, body { margin: 0; height: 100%; overflow: hidden; background: #202326; }
+      canvas { display: block; }
+      #hud {
+        position: fixed; top: 8px; left: 8px; padding: 6px 10px;
+        font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace; white-space: pre;
+        color: #fff; background: rgba(0, 0, 0, 0.55); border-radius: 4px; pointer-events: none;
+      }
+      #overlay {
+        position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+        background: rgba(0, 0, 0, 0.45); color: #fff; cursor: pointer;
+        font: 16px/1.7 system-ui, -apple-system, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+        text-align: center;
+      }
+      #overlay.hidden { display: none; }
+      #overlay b { font-size: 22px; }
+      #crosshair {
+        position: fixed; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px;
+        background: rgba(255, 255, 255, 0.8); border-radius: 50%; pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="crosshair"></div>
+    <div id="overlay">
+      <div>
+        <b>點擊畫面開始</b><br />
+        滑鼠：看　W A S D：移動　Shift：衝刺<br />
+        F3：碰撞框　ESC：解除滑鼠鎖定
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
