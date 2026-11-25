@@ -111,7 +111,7 @@ export function buildLobby(scene, colliders) {
   box(group, C.corridorSkirting, sd, sh, D, xL1 - sd / 2, sh / 2, zc);
 
   // 樓梯（照片）：北側（左）往下、南側（右）往上
-  // 上行段（照片）：直梯逐階升高，靠東牆為最高；開放的一側（北側）裝銅色扶手，南側為實牆
+  // 上行段（照片）：直梯逐階升高，靠東牆為最高；北側與下行段相接，開放的南側裝銅色扶手
   const zUp0 = zS + 6.1, zUp1 = zS + 7.5, zUpC = (zUp0 + zUp1) / 2;
   const treadMat = mat('#cdc4b2', { roughness: 0.8 });
   const nosingMat = mat('#8c8373', { roughness: 0.7 });
@@ -129,7 +129,7 @@ export function buildLobby(scene, colliders) {
   const yLo = 0.9, yHi = NSTEP * RISE + 0.9;
   const rLen = Math.hypot(xHi - xLo, yHi - yLo), rAng = Math.atan2(yHi - yLo, xHi - xLo);
   const rail = new THREE.Mesh(new THREE.BoxGeometry(rLen, 0.05, 0.05), copper);
-  rail.position.set((xLo + xHi) / 2, (yLo + yHi) / 2, zUp0 + 0.05);
+  rail.position.set((xLo + xHi) / 2, (yLo + yHi) / 2, zUp1 - 0.05);
   rail.rotation.z = rAng;
   rail.castShadow = true;
   group.add(rail);
@@ -138,18 +138,17 @@ export function buildLobby(scene, colliders) {
     const topY = Math.min(NSTEP, i) * RISE + 0.9;
     const base = Math.max(0, topY - 0.9);
     const post = new THREE.Mesh(new THREE.BoxGeometry(0.03, topY - base, 0.03), copper);
-    post.position.set(Math.max(xLo, Math.min(xHi, px)), (topY + base) / 2, zUp0 + 0.05);
+    post.position.set(Math.max(xLo, Math.min(xHi, px)), (topY + base) / 2, zUp1 - 0.05);
     group.add(post);
   }
-  // 下行段（照片）：貼著多功能展演廳的北牆，面向北牆往南下降；無扶手。
-  // 地面開口貼皮：寬 3.0 m（東西向，靠東牆）× 深 2.4 m（南北向，從北牆起算）
-  const dnW = 3.0, dnD = 2.4;
+  // 下行段（照片）：與上行段併在一起，位於上行段北側，兩段共用邊界、寬度相同（沿東牆 x 方向 2.4 m）
+  const dnW = 2.4, dnD = zUp0 - (zS + 4.7);
   const dnMesh = new THREE.Mesh(
     new THREE.PlaneGeometry(dnW, dnD),
     new THREE.MeshStandardMaterial({ map: stairsDownTex(), roughness: 0.7, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }),
   );
   dnMesh.rotation.x = -Math.PI / 2;
-  dnMesh.position.set(xL1 - dnW / 2, 0.006, zS + dnD / 2);
+  dnMesh.position.set(xL1 - dnW / 2, 0.006, zS + 4.7 + dnD / 2);
   group.add(dnMesh);
 
   // 突出牆：深度與樓梯切齊（2.4 m），厚 1.4 m，南面緊貼紅磚牆
