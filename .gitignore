@@ -1,2 +1,4 @@
 node_modules
 dist
+# 教室參考照片只留在本機（推送照片被權限檢查擋下）
+reference/
