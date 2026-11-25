@@ -111,13 +111,36 @@ export function buildLobby(scene, colliders) {
   box(group, C.corridorSkirting, sd, sh, D, xL1 - sd / 2, sh / 2, zc);
 
   // 樓梯（照片）：北側（左）往下、南側（右）往上
-  // 上行段：實體台階，沿東牆逐階升高
+  // 上行段（照片）：直梯逐階升高，靠東牆為最高；開放的一側（北側）裝銅色扶手，南側為實牆
   const zUp0 = zS + 6.1, zUp1 = zS + 7.5, zUpC = (zUp0 + zUp1) / 2;
-  for (let i = 0; i < 8; i++) {
-    const hgt = (8 - i) * 0.18;
-    box(group, C.corridorWall, 0.3, hgt, zUp1 - zUp0, xL1 - 0.15 - i * 0.3, hgt / 2, zUpC, { cast: true });
+  const treadMat = mat('#cdc4b2', { roughness: 0.8 });
+  const nosingMat = mat('#8c8373', { roughness: 0.7 });
+  const RISE = 0.18, RUN = 0.3, NSTEP = 8;
+  for (let i = 0; i < NSTEP; i++) {
+    const hgt = (NSTEP - i) * RISE;
+    const xc2 = xL1 - 0.15 - i * RUN;
+    box(group, null, RUN, hgt, zUp1 - zUp0, xc2, hgt / 2, zUpC, { cast: true, material: treadMat });
+    box(group, null, 0.03, 0.012, zUp1 - zUp0, xc2 + RUN / 2 - 0.02, hgt + 0.006, zUpC, { material: nosingMat });
   }
   colliders.push(makeCollider(xL1 - 2.4, xL1, zUp0, zUp1, 0, 1.44, '上行樓梯'));
+  // 銅色扶手：斜向、沿開放側，低端在 0.9 m、高端在樓梯頂的 0.9 m 之上；立柱每階一根
+  const copper = mat('#b87333', { roughness: 0.35, metalness: 0.6 });
+  const xLo = xL1 - 2.4, xHi = xL1 - 0.15;
+  const yLo = 0.9, yHi = NSTEP * RISE + 0.9;
+  const rLen = Math.hypot(xHi - xLo, yHi - yLo), rAng = Math.atan2(yHi - yLo, xHi - xLo);
+  const rail = new THREE.Mesh(new THREE.BoxGeometry(rLen, 0.05, 0.05), copper);
+  rail.position.set((xLo + xHi) / 2, (yLo + yHi) / 2, zUp0 + 0.05);
+  rail.rotation.z = rAng;
+  rail.castShadow = true;
+  group.add(rail);
+  for (let i = 0; i <= NSTEP; i += 2) {
+    const px = xL1 - 0.15 - (i >= NSTEP ? NSTEP - 1 : i) * RUN - (i >= NSTEP ? 0 : 0.15);
+    const topY = Math.min(NSTEP, i) * RISE + 0.9;
+    const base = Math.max(0, topY - 0.9);
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.03, topY - base, 0.03), copper);
+    post.position.set(Math.max(xLo, Math.min(xHi, px)), (topY + base) / 2, zUp0 + 0.05);
+    group.add(post);
+  }
   // 下行段（照片）：貼著多功能展演廳的北牆，面向北牆往南下降；無扶手。
   // 地面開口貼皮：寬 3.0 m（東西向，靠東牆）× 深 2.4 m（南北向，從北牆起算）
   const dnW = 3.0, dnD = 2.4;
