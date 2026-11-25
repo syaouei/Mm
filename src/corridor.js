@@ -237,8 +237,15 @@ export function buildCorridor(scene, colliders) {
     scene.add(pl);
   }
   // 牆：北牆（全長）、西端牆、南牆（僅 x < xW；x ∈ [xW, xE] 為連接開口）、東段東牆（x ∈ [xE, xI]）
-  box(group, null, wLen + T, H, T, xWc, H / 2, zBN - T / 2, { material: wallMat });
-  colliders.push(makeCollider(xWEnd - T, xE, zBN - T, zBN, 0, H, '西延走廊北牆'));
+  // 西延段北牆：留出男廁、女廁的門洞（門洞上方為過樑）
+  const RESTROOM_DOORS = [[-19.6, -18.4], [-14.6, -13.4]];
+  for (const [a, b] of solidWithHoles(xWEnd - T, xE, RESTROOM_DOORS)) {
+    box(group, null, b - a, H, T, (a + b) / 2, H / 2, zBN - T / 2, { material: wallMat });
+    colliders.push(makeCollider(a, b, zBN - T, zBN, 0, H, '西延走廊北牆'));
+  }
+  for (const [a, b] of RESTROOM_DOORS) {
+    box(group, null, b - a, H - 2.1, T, (a + b) / 2, (2.1 + H) / 2, zBN - T / 2, { material: wallMat });
+  }
   box(group, null, T, H, K.width + 2 * T, xWEnd - T / 2, H / 2, wZc, { material: wallMat });
   colliders.push(makeCollider(xWEnd - T, xWEnd, zBN - T, zBS, 0, H, '西延走廊端牆'));
   box(group, null, xW - xWEnd, H, T, (xWEnd + xW) / 2, H / 2, zBS + T / 2, { material: wallMat });

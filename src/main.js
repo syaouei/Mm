@@ -5,6 +5,7 @@ import { buildRoom } from './room.js';
 import { buildFurniture } from './furniture.js';
 import { buildCorridor } from './corridor.js';
 import { buildLobby } from './lobby.js';
+import { buildRestrooms } from './restroom.js';
 import { buildDoors } from './door.js';
 import { Player } from './player.js';
 import { Debug } from './debug.js';
@@ -44,6 +45,7 @@ const colliders = [
 ];
 buildCorridor(scene, colliders);
 buildLobby(scene, colliders);
+buildRestrooms(scene, colliders);
 const doors = buildDoors(scene, colliders);
 
 // 靜態場景：陰影預設只算一次，門在動的時候才重算
