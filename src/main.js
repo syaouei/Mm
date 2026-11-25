@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
+import { geo } from './layout.js';
 import { buildRoom } from './room.js';
 import { buildFurniture } from './furniture.js';
 import { buildCorridor } from './corridor.js';
@@ -21,15 +22,26 @@ document.body.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#202326');
 
-const camera = new THREE.PerspectiveCamera(CONFIG.render.fov, window.innerWidth / window.innerHeight, 0.05, 50);
+const camera = new THREE.PerspectiveCamera(CONFIG.render.fov, window.innerWidth / window.innerHeight, 0.05, 80);
 
-const room = buildRoom(scene);
-const furniture = buildFurniture(scene);
-// 隔壁教室：沿 z 鏡像，格局與主教室完全相反，與主教室共用前牆
-const c2 = -(CONFIG.room.length + CONFIG.room.wallThickness);
-const room2 = buildRoom(scene, { secondary: true, centerZ: c2 });
-const furniture2 = buildFurniture(scene, { centerZ: c2 });
-const colliders = [...room.colliders, ...furniture.colliders, ...room2.colliders, ...furniture2.colliders];
+// 教室 A（原本的主教室，位置不動）
+const g = geo();
+const roomA = buildRoom(scene);
+const furnA = buildFurniture(scene);
+// 教室 B：A 北側，沿 z 鏡像（格局相反，共用前牆）
+const placeB = { cz: g.c2, sz: -1 };
+const roomB = buildRoom(scene, { secondary: true, place: placeB });
+const furnB = buildFurniture(scene, { place: placeB });
+// 教室 C：走廊西側，沿 x 鏡像（門朝東，朝方形空間與走廊）
+const placeC = { cx: g.cxC, cz: g.czC, sx: -1 };
+const roomC = buildRoom(scene, { secondary: true, place: placeC });
+const furnC = buildFurniture(scene, { place: placeC });
+
+const colliders = [
+  ...roomA.colliders, ...furnA.colliders,
+  ...roomB.colliders, ...furnB.colliders,
+  ...roomC.colliders, ...furnC.colliders,
+];
 buildCorridor(scene, colliders);
 buildLobby(scene, colliders);
 const doors = buildDoors(scene, colliders);

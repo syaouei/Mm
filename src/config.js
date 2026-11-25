@@ -136,7 +136,7 @@ export const CONFIG = {
     pointIntensity: 1.2, // 燈管下方的 PointLight
     pointDistance: 5,
     pointLightCount: 4,  // 最多幾盞 PointLight（效能考量）
-    shadowMapSize: 2048,
+    shadowMapSize: 4096,
     // 燈管格狀排列：沿 z 方向擺放的長條燈
     fixtureCols: 6,
     fixtureRows: 3,
@@ -159,6 +159,7 @@ export const CONFIG = {
   corridor: {
     width: 2.6,        // 走廊寬（教室外牆到窗戶牆）— 估計
     frontExtend: 8.4, // 前門側（-z）延伸多少 m，要涵蓋隔壁教室 — 估計
+    northExtend: 10,   // 走廊往北延伸（方形空間外）— 估計
     backExtend: 3.25,  // 後門側（+z，電梯端）延伸多少 m — 估計
     windowBay: 1.6,    // 每格窗戶寬 — 估計
     windowSill: 0.8,   // 窗台高 — 估計
@@ -169,8 +170,8 @@ export const CONFIG = {
 
   // 走廊前端（-z）外的方形大廳（照片：電梯、紅磚柱、樓梯、平面圖）
   lobby: {
-    width: 10,  // x 方向 — 估計
-    depth: 10,  // z 方向（從走廊前端往外）— 估計
+    depth: 16,  // 方形空間南北深度（從 B 的北牆往北）— 估計（依草圖比例）
+    cRoomZ: 1.5, // 教室 C 的北牆離方形空間北牆的距離 — 估計
   },
 
   // 互動

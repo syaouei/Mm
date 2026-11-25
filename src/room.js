@@ -6,14 +6,15 @@ export function makeCollider(minX, maxX, minZ, maxZ, minY, maxY, label) {
   return { minX, maxX, minZ, maxZ, minY, maxY, label };
 }
 
-// 以 centerZ 為中心，沿 z 方向鏡像（前後對調）。用於隔壁教室：格局與主教室完全相反
-export function mirrorPlace(group, colliders, centerZ) {
-  group.scale.z = -1;
-  group.position.z = centerZ;
+// 放置房間：以 (cx, cz) 為中心，sx / sz = -1 表示沿該軸鏡像（格局相反）。同時把碰撞框一起轉換
+export function placeRoom(group, colliders, { cx = 0, cz = 0, sx = 1, sz = 1 }) {
+  group.position.set(cx, 0, cz);
+  group.scale.set(sx, 1, sz);
   for (const c of colliders) {
-    const minZ = centerZ - c.maxZ, maxZ = centerZ - c.minZ;
-    c.minZ = minZ;
-    c.maxZ = maxZ;
+    const xa = cx + sx * c.minX, xb = cx + sx * c.maxX;
+    const za = cz + sz * c.minZ, zb = cz + sz * c.maxZ;
+    c.minX = Math.min(xa, xb); c.maxX = Math.max(xa, xb);
+    c.minZ = Math.min(za, zb); c.maxZ = Math.max(za, zb);
   }
 }
 
@@ -235,7 +236,7 @@ export function buildRoom(scene, opts = {}) {
   sun.target.position.set(0, 0, 0);
   sun.castShadow = true;
   sun.shadow.mapSize.set(lighting.shadowMapSize, lighting.shadowMapSize);
-  const half = Math.max(W / 2 + T + CONFIG.corridor.width, L / 2 + Math.max(CONFIG.corridor.frontExtend + CONFIG.lobby.depth, CONFIG.corridor.backExtend)) + 1;
+  const half = 40;
   Object.assign(sun.shadow.camera, { left: -half, right: half, top: half, bottom: -half, near: 0.5, far: H + 25 });
   sun.shadow.bias = -0.0005;
   sun.shadow.normalBias = 0.02;
@@ -251,7 +252,7 @@ export function buildRoom(scene, opts = {}) {
   }
 
   }
-  if (opts.centerZ !== undefined) mirrorPlace(group, colliders, opts.centerZ);
+  if (opts.place) placeRoom(group, colliders, opts.place);
   return { group, colliders };
 }
 
