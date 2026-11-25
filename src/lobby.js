@@ -197,4 +197,24 @@ export function buildLobby(scene, colliders) {
     decal(group, binTex(), 0.9, 1.0, tx, 0.5, z0 - 1.005, Math.PI);
     colliders.push(makeCollider(tx - 0.45, tx + 0.45, z0 - 1.0, z0 - 0.2, 0, 1.0, '垃圾桶'));
   }
+
+  // ---------- 補齊：北牆移到 zN 後留下的空白段（zS ~ zN，x ∈ [xE, xL1]）----------
+  // 這段原本在多功能廳範圍內，北牆南移後變成大廳的一部分：補地板、天花板、東牆與北牆（zS）
+  const zG0 = zS, zG1 = zN, xG0 = xE, xG1 = xL1;
+  const gW = xG1 - xG0, gD = zG1 - zG0, gXc = (xG0 + xG1) / 2, gZc = (zG0 + zG1) / 2;
+  const gFloorTex = gridTexture(C.lobbyFloor, C.lobbyGrout, 128, 3);
+  gFloorTex.repeat.set(gW / room.floorTile, gD / room.floorTile);
+  const gFloor = new THREE.Mesh(new THREE.PlaneGeometry(gW, gD), new THREE.MeshStandardMaterial({ map: gFloorTex, roughness: 0.4 }));
+  gFloor.rotation.x = -Math.PI / 2; gFloor.position.set(gXc, 0, gZc); gFloor.receiveShadow = true; group.add(gFloor);
+  const gCeilTex = gridTexture(C.ceiling, C.ceilingGrid, 128, 4);
+  gCeilTex.repeat.set(gW / room.ceilingTile, gD / room.ceilingTile);
+  const gCeil = new THREE.Mesh(new THREE.PlaneGeometry(gW, gD), new THREE.MeshStandardMaterial({ map: gCeilTex, roughness: 0.95 }));
+  gCeil.rotation.x = Math.PI / 2; gCeil.position.set(gXc, H, gZc); group.add(gCeil);
+  const gDown = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.03, 20), mat(C.downlight));
+  gDown.position.set(gXc, H - 0.012, gZc); group.add(gDown);
+  // 東牆（xL1 ~ xL1+T）與北牆（zS）
+  box(group, null, T, H, gD, xG1 + T / 2, H / 2, gZc, { material: wallMat });
+  colliders.push(makeCollider(xG1, xG1 + T, zG0, zG1, 0, H, '補齊東牆'));
+  box(group, null, gW + T, H, T, gXc, H / 2, zG0 - T / 2, { material: wallMat });
+  colliders.push(makeCollider(xG0, xG1 + T, zG0 - T, zG0, 0, H, '補齊北牆'));
 }
