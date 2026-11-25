@@ -241,8 +241,10 @@ export function buildCorridor(scene, colliders) {
   colliders.push(makeCollider(xWEnd - T, xWEnd, zBN - T, zBS, 0, H, '西延走廊端牆'));
   box(group, null, xW - xWEnd, H, T, (xWEnd + xW) / 2, H / 2, zBS + T / 2, { material: wallMat });
   colliders.push(makeCollider(xWEnd, xW, zBS, zBS + T, 0, H, '西延走廊南牆'));
-  box(group, null, xI - xE, H, K.width, (xE + xI) / 2, H / 2, wZc, { material: wallMat });   // 東牆覆蓋整段西延段（z: zBN ~ zBS）
-  colliders.push(makeCollider(xE, xI, zBN, zBS, 0, H, '西延走廊東牆'));
+  // 東牆覆蓋整段西延段並延伸到主走廊東牆（zNend），避免兩段之間留下縫隙（會露出深色背景）
+  const eZ0 = zBN, eZ1 = zNend;
+  box(group, null, xI - xE, H, eZ1 - eZ0, (xE + xI) / 2, H / 2, (eZ0 + eZ1) / 2, { material: wallMat });
+  colliders.push(makeCollider(xE, xI, eZ0, eZ1, 0, H, '西延走廊東牆'));
   // 門洞：x ∈ [xW, xE] 不建牆，連接主走廊北端與西延段
 
   // ---------- 南端：窗戶加捲簾（照片：後門左手邊） ----------
