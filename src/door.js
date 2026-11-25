@@ -48,6 +48,12 @@ function buildDoor(scene, colliders, { name, z0, z1, double, inward }) {
   colliders.push(makeCollider(xE, xI, z0 - f, z0, 0, h + f, name + '門框'));
   colliders.push(makeCollider(xE, xI, z1, z1 + f, 0, h + f, name + '門框'));
 
+  // 走廊側的門牌（白底、青色邊框）
+  if (!inward) {
+    box(group, C.nameTeal, 0.012, 0.2, 0.42, xE - 0.008, 2.4, zm);
+    box(group, C.switchPlate, 0.01, 0.14, 0.36, xE - 0.014, 2.4, zm);
+  }
+
   // 門扇
   const leafSpecs = double
     ? [{ a: z0, b: zm, hinge: 'z0' }, { a: zm, b: z1, hinge: 'z1' }]
@@ -64,6 +70,7 @@ function buildDoor(scene, colliders, { name, z0, z1, double, inward }) {
     box(pivot, C.door, 0.035, h, len - 0.006, 0, h / 2, (d * len) / 2, { cast: true });
     // 門把在門扇的自由端，朝向門的「外側」（教室內門在教室側）
     box(pivot, C.metal, 0.05, 0.02, 0.12, -0.03 * dx, 1.0, d * (len - 0.08));
+    box(pivot, C.glassDark, 0.008, 0.4, 0.14, dx * 0.0185, 1.45, (d * len) / 2); // 門上的小玻璃窗
     // 旋轉方向：讓門扇的自由端往 dx 方向擺開
     pivots.push({ pivot, sign: dx * d });
     // 關著時擋住門口；開啟後 disabled 為 true，不擋路

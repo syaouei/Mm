@@ -110,6 +110,18 @@ export const CONFIG = {
     brick: '#7b3b33',
     stainless: '#c5c9cd',
     darkDoor: '#3a3431',
+    sill: '#c9c9c4',
+    cord: '#f0f0ee',
+    brass: '#b8945a',
+    exitGreen: '#2e8b57',
+    glassDark: '#2c3a40',
+    hydrant: '#e9e9e6',
+    hydrantRed: '#c0392b',
+    cctv: '#1a1a1a',
+    irPink: '#ff4fa0',
+    switchPlate: '#f4f4f0',
+    nameTeal: '#1f7a7a',
+    downlight: '#f2f2f0',
   },
 
   lighting: {
