@@ -259,11 +259,13 @@ export function buildRoom(scene, opts = {}) {
 
   // 一盞方向光負責陰影（只算一次 shadow pass，效能最好）
   const sun = new THREE.DirectionalLight('#ffffff', lighting.sun);
-  sun.position.set(1.2, H + 4, 1.5);
-  sun.target.position.set(0, 0, 0);
+  // 陰影範圍以整棟建築中心為準（原本以原點為中心，北側延伸段超出範圍會變成全黑）
+  const SC = { x: -6, z: -15 };
+  sun.position.set(SC.x + 1.2, H + 4, SC.z + 1.5);
+  sun.target.position.set(SC.x, 0, SC.z);
   sun.castShadow = true;
   sun.shadow.mapSize.set(lighting.shadowMapSize, lighting.shadowMapSize);
-  const half = 40;
+  const half = 60;
   Object.assign(sun.shadow.camera, { left: -half, right: half, top: half, bottom: -half, near: 0.5, far: H + 25 });
   sun.shadow.bias = -0.0005;
   sun.shadow.normalBias = 0.02;

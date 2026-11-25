@@ -228,8 +228,9 @@ export function buildCorridor(scene, colliders) {
     box(group, C.fixture, 0.66, 0.02, 0.66, x, H - 0.011, wZc);
     box(group, null, 0.58, 0.02, 0.58, x, H - 0.024, wZc, { material: new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: '#ffffff', emissiveIntensity: 1, roughness: 0.4 }) });
   }
-  for (const k of [0.25, 0.75]) {
-    const pl = new THREE.PointLight('#fff4e4', lighting.pointIntensity * 0.6, 4.5, 1.5);
+  // 西延段補光：西端墙在光源範圍外會變暗，因此沿長度多放幾盞並在西端近處加強
+  for (const k of [0.15, 0.4, 0.7]) {
+    const pl = new THREE.PointLight('#fff4e4', lighting.pointIntensity * 0.9, 6, 1.5);
     pl.position.set(xWEnd + wLen * k, H - 0.7, wZc);
     scene.add(pl);
   }
@@ -240,7 +241,7 @@ export function buildCorridor(scene, colliders) {
   colliders.push(makeCollider(xWEnd - T, xWEnd, zBN - T, zBS, 0, H, '西延走廊端牆'));
   box(group, null, xW - xWEnd, H, T, (xWEnd + xW) / 2, H / 2, zBS + T / 2, { material: wallMat });
   colliders.push(makeCollider(xWEnd, xW, zBS, zBS + T, 0, H, '西延走廊南牆'));
-  box(group, null, xI - xE, H, T, (xE + xI) / 2, H / 2, zBN + K.width / 2, { material: wallMat });
+  box(group, null, xI - xE, H, K.width, (xE + xI) / 2, H / 2, wZc, { material: wallMat });   // 東牆覆蓋整段西延段（z: zBN ~ zBS）
   colliders.push(makeCollider(xE, xI, zBN, zBS, 0, H, '西延走廊東牆'));
   // 門洞：x ∈ [xW, xE] 不建牆，連接主走廊北端與西延段
 
