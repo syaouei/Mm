@@ -216,14 +216,16 @@ export function buildCorridor(scene, colliders) {
   const xWEnd = xW - WEXT;                      // 西端
   const xWc = (xWEnd + xE) / 2, wLen = xE - xWEnd, wZc = (zBN + zBS) / 2;
   // 地板與天花板
+  // 地板與天花板延伸到 zNend（與主走廊地板、天花板銜接，避免縫隙露出背景）
+  const wD = zNend - zBN, wDc = (zBN + zNend) / 2;
   const wFloorTex = gridTexture(C.corridorFloor, C.corridorGrout, 128, 3);
-  wFloorTex.repeat.set(wLen / room.floorTile, K.width / room.floorTile);
-  const wFloor = new THREE.Mesh(new THREE.PlaneGeometry(wLen, K.width), new THREE.MeshStandardMaterial({ map: wFloorTex, roughness: 0.6 }));
-  wFloor.rotation.x = -Math.PI / 2; wFloor.position.set(xWc, 0, wZc); wFloor.receiveShadow = true; group.add(wFloor);
+  wFloorTex.repeat.set(wLen / room.floorTile, wD / room.floorTile);
+  const wFloor = new THREE.Mesh(new THREE.PlaneGeometry(wLen, wD), new THREE.MeshStandardMaterial({ map: wFloorTex, roughness: 0.6 }));
+  wFloor.rotation.x = -Math.PI / 2; wFloor.position.set(xWc, 0, wDc); wFloor.receiveShadow = true; group.add(wFloor);
   const wCeilTex = gridTexture(C.ceiling, C.ceilingGrid, 128, 4);
-  wCeilTex.repeat.set(wLen / room.ceilingTile, K.width / room.ceilingTile);
-  const wCeil = new THREE.Mesh(new THREE.PlaneGeometry(wLen, K.width), new THREE.MeshStandardMaterial({ map: wCeilTex, roughness: 0.95 }));
-  wCeil.rotation.x = Math.PI / 2; wCeil.position.set(xWc, H, wZc); group.add(wCeil);
+  wCeilTex.repeat.set(wLen / room.ceilingTile, wD / room.ceilingTile);
+  const wCeil = new THREE.Mesh(new THREE.PlaneGeometry(wLen, wD), new THREE.MeshStandardMaterial({ map: wCeilTex, roughness: 0.95 }));
+  wCeil.rotation.x = Math.PI / 2; wCeil.position.set(xWc, H, wDc); group.add(wCeil);
   for (let x = xWEnd + 1.5; x < xE - 1; x += K.lightSpacing) {
     box(group, C.fixture, 0.66, 0.02, 0.66, x, H - 0.011, wZc);
     box(group, null, 0.58, 0.02, 0.58, x, H - 0.024, wZc, { material: new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: '#ffffff', emissiveIntensity: 1, roughness: 0.4 }) });
