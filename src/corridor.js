@@ -207,9 +207,42 @@ export function buildCorridor(scene, colliders) {
   // 入口旁的 Pantry 標示（照片：門旁牆上的青色標示牌）
   decal(group, pantrySignTex(), 0.3, 0.375, xW + 0.006, 1.5, zNend + 2.1, Math.PI / 2);
 
-  // ---------- 北端牆 ----------
-  box(group, null, K.width, H, T, xc, H / 2, zNend - T / 2, { material: wallMat });
-  colliders.push(makeCollider(xW, xE, zNend - T, zNend, 0, H, '走廊北端牆'));
+  // ---------- 北端：走廊向北接出一段「往西約 10 m」的走廊（L 形轉角） ----------
+  // 原北端牆在 x ∈ [xW, xE] 留出開口，走廊由此往北進入西延段；西延段寬 K.width，
+  // 其南牆（x < xW）為茶水間北側的牆，北牆、西端牆、東段的東牆皆為實牆。
+  const WEXT = 10;                              // 往西延伸長度
+  const zBS = zNend - T;                        // 西延段南邊（與原北端牆北面同高）
+  const zBN = zBS - K.width;                    // 西延段北邊
+  const xWEnd = xW - WEXT;                      // 西端
+  const xWc = (xWEnd + xE) / 2, wLen = xE - xWEnd, wZc = (zBN + zBS) / 2;
+  // 地板與天花板
+  const wFloorTex = gridTexture(C.corridorFloor, C.corridorGrout, 128, 3);
+  wFloorTex.repeat.set(wLen / room.floorTile, K.width / room.floorTile);
+  const wFloor = new THREE.Mesh(new THREE.PlaneGeometry(wLen, K.width), new THREE.MeshStandardMaterial({ map: wFloorTex, roughness: 0.6 }));
+  wFloor.rotation.x = -Math.PI / 2; wFloor.position.set(xWc, 0, wZc); wFloor.receiveShadow = true; group.add(wFloor);
+  const wCeilTex = gridTexture(C.ceiling, C.ceilingGrid, 128, 4);
+  wCeilTex.repeat.set(wLen / room.ceilingTile, K.width / room.ceilingTile);
+  const wCeil = new THREE.Mesh(new THREE.PlaneGeometry(wLen, K.width), new THREE.MeshStandardMaterial({ map: wCeilTex, roughness: 0.95 }));
+  wCeil.rotation.x = Math.PI / 2; wCeil.position.set(xWc, H, wZc); group.add(wCeil);
+  for (let x = xWEnd + 1.5; x < xE - 1; x += K.lightSpacing) {
+    box(group, C.fixture, 0.66, 0.02, 0.66, x, H - 0.011, wZc);
+    box(group, null, 0.58, 0.02, 0.58, x, H - 0.024, wZc, { material: new THREE.MeshStandardMaterial({ color: '#ffffff', emissive: '#ffffff', emissiveIntensity: 1, roughness: 0.4 }) });
+  }
+  for (const k of [0.25, 0.75]) {
+    const pl = new THREE.PointLight('#fff4e4', lighting.pointIntensity * 0.6, 4.5, 1.5);
+    pl.position.set(xWEnd + wLen * k, H - 0.7, wZc);
+    scene.add(pl);
+  }
+  // 牆：北牆（全長）、西端牆、南牆（僅 x < xW；x ∈ [xW, xE] 為連接開口）、東段東牆（x ∈ [xE, xI]）
+  box(group, null, wLen + T, H, T, xWc, H / 2, zBN - T / 2, { material: wallMat });
+  colliders.push(makeCollider(xWEnd - T, xE, zBN - T, zBN, 0, H, '西延走廊北牆'));
+  box(group, null, T, H, K.width + 2 * T, xWEnd - T / 2, H / 2, wZc, { material: wallMat });
+  colliders.push(makeCollider(xWEnd - T, xWEnd, zBN - T, zBS, 0, H, '西延走廊端牆'));
+  box(group, null, xW - xWEnd, H, T, (xWEnd + xW) / 2, H / 2, zBS + T / 2, { material: wallMat });
+  colliders.push(makeCollider(xWEnd, xW, zBS, zBS + T, 0, H, '西延走廊南牆'));
+  box(group, null, xI - xE, H, T, (xE + xI) / 2, H / 2, zBN + K.width / 2, { material: wallMat });
+  colliders.push(makeCollider(xE, xI, zBN, zBS, 0, H, '西延走廊東牆'));
+  // 門洞：x ∈ [xW, xE] 不建牆，連接主走廊北端與西延段
 
   // ---------- 南端：窗戶加捲簾（照片：後門左手邊） ----------
   const zB = z1 + T / 2;
