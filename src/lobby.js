@@ -98,9 +98,12 @@ export function buildLobby(scene, colliders) {
   colliders.push(makeCollider(xE, xL1 + T, zS - T, zS, 0, H, '展演廳北牆'));
   text(['多功能展演廳', 'Auditorium'], 3.2, 1.4, (xE + xL1) / 2, 2.0, zS + 0.02, 0, C.signBlue);
   // 消防栓櫃與 4F 平面圖看板（照片：在電梯旁的牆上）
-  box(group, C.hydrant, 0.9, 1.2, 0.2, xE + 0.8, 1.2, zS + 0.1);
-  decal(group, hydrantTex(), 0.9, 1.2, xE + 0.8, 1.2, zS + 0.205, 0);
-  decal(group, planTex(), 0.9, 1.3, xE + 2.3, 1.55, zS + 0.01, 0);
+  // 貼在突出牆的北面（電梯左手邊）：北面位於 zS+5.75，朝北（-z）
+  const zFace = zS + 5.75, xHyd = xL1 - 2.5, xPlan = xL1 - 1.2;
+  box(group, C.hydrant, 0.9, 1.2, 0.2, xHyd, 1.2, zFace - 0.1);
+  decal(group, hydrantTex(), 0.9, 1.2, xHyd, 1.2, zFace - 0.205, Math.PI);
+  decal(group, planTex(), 0.9, 1.3, xPlan, 1.55, zFace - 0.005, Math.PI);
+  colliders.push(makeCollider(xHyd - 0.45, xHyd + 0.45, zFace - 0.2, zFace, 0, 1.65, '消防栓箱'));
 
   // ---------- 東牆：一段牆、樓梯、電梯 1、電梯 2 ----------
   box(group, null, T, H, D, xL1 + T / 2, H / 2, zc, { material: wallMat });

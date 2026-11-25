@@ -99,6 +99,8 @@ export function buildRoom(scene, opts = {}) {
     [W + 2 * T, T, 0, zMax + T / 2, '後牆'],
     [T, L, xMax + T / 2, 0, '窗側牆'],
   ];
+  // C 旋轉後，本地 -x 側是北牆（A、B 的這面由走廊那段負責，所以只有 C 需要）
+  if (opts.minimal) walls.push([T, L, xMin - T / 2, 0, '北牆']);
   for (const [sx, sz, cx, cz, label] of walls) {
     if (opts.noFrontWall && label === '前牆') continue; // C 的牆由走廊那段負責（有門洞）
     box(group, null, sx, H, sz, cx, H / 2, cz, { material: wallMat });
@@ -108,8 +110,10 @@ export function buildRoom(scene, opts = {}) {
   // ---------- 後牆柱子（貫穿到天花板） ----------
   const pMinX = pillar.centerX - pillar.width / 2, pMaxX = pillar.centerX + pillar.width / 2;
   const pMinZ = zMax - pillar.depth;
+  if (!opts.minimal) {
   box(group, null, pillar.width, H, pillar.depth, pillar.centerX, H / 2, zMax - pillar.depth / 2, { material: wallMat });
   colliders.push(makeCollider(pMinX, pMaxX, pMinZ, zMax, 0, H, '柱子'));
+  }
 
   // ---------- 門（教室內側的雙門為裝飾；後門在 door.js，走廊側牆在 corridor.js） ----------
   const doorX = xMin;
@@ -145,6 +149,7 @@ export function buildRoom(scene, opts = {}) {
     }
   }
 
+  if (!opts.minimal) {
   // 時鐘（門側牆，雙門旁）
   const clock = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.04, 32), mat(C.clock));
   clock.rotation.z = Math.PI / 2;
@@ -155,17 +160,20 @@ export function buildRoom(scene, opts = {}) {
   // 電燈開關面板
   box(group, '#f4f4f0', 0.02, 0.12, 0.08, xMin + 0.01, 1.25, backDoor.z0 - 0.35);
   box(group, '#f4f4f0', 0.02, 0.12, 0.08, xMin + 0.01, 1.25, frontDoor.z1 + 0.25);
+  }
 
   // ---------- 踢腳板（避開門與柱子） ----------
   const sh = room.skirtingHeight, sd = room.skirtingDepth;
   const skirt = (sx, sz, cx, cz) => box(group, C.skirting, sx, sh, sz, cx, sh / 2, cz);
   if (!opts.noFrontWall) skirt(W, sd, 0, zMin + sd / 2); // 前牆
-  // 後牆（柱子左右兩段 + 柱子三面）
+  if (opts.minimal) skirt(W, sd, 0, zMax - sd / 2); // 後牆（C：沒有柱子）
+  else {
   skirt(pMinX - xMin, sd, (xMin + pMinX) / 2, zMax - sd / 2);
   skirt(xMax - pMaxX, sd, (pMaxX + xMax) / 2, zMax - sd / 2);
   skirt(pillar.width + 2 * sd, sd, pillar.centerX, pMinZ - sd / 2);
   skirt(sd, pillar.depth, pMinX - sd / 2, zMax - pillar.depth / 2);
   skirt(sd, pillar.depth, pMaxX + sd / 2, zMax - pillar.depth / 2);
+  }
   skirt(sd, L, xMax - sd / 2, 0); // 窗側牆
   // 門側牆：分段避開兩扇門
   const segs = [
@@ -173,7 +181,7 @@ export function buildRoom(scene, opts = {}) {
     [frontDoor.z1 + doors.frame, backDoor.z0 - doors.frame],
     [backDoor.z1 + doors.frame, zMax],
   ];
-  for (const [a, b] of segs) if (b > a) skirt(sd, b - a, xMin + sd / 2, (a + b) / 2);
+  for (const [a, b] of (opts.minimal ? [[zMin, zMax]] : segs)) if (b > a) skirt(sd, b - a, xMin + sd / 2, (a + b) / 2);
 
   // ---------- 前牆：白板、布幕捲筒、白板燈、講桌、喇叭 ----------
   const [wbX0, wbX1] = opts.wb ?? [-5.0, 3.0]; // 白板左右範圍 — 估計

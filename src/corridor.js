@@ -134,7 +134,7 @@ export function buildCorridor(scene, colliders) {
   // 窗外景色（樹林，用單色平面代替）
   const outside = new THREE.Mesh(new THREE.PlaneGeometry(len + 20, 14), mat(C.outdoor, { roughness: 1 }));
   outside.rotation.y = Math.PI / 2;
-  outside.position.set(xW - 3, 5, zc);
+  outside.position.set(xW - 14, 5, zc); // 放在教室 C 的西側之外，不穿進 C
   group.add(outside);
 
   // ---------- 踢腳板 ----------
