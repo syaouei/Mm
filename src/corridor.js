@@ -3,6 +3,7 @@ import { CONFIG } from './config.js';
 import { box, mat, gridTexture, makeCollider } from './room.js';
 import { doorSpans } from './door.js';
 import { geo } from './layout.js';
+import { decal, signTex } from './decals.js';
 
 // 把 [a, b] 扣掉門洞 holes（已排序），回傳剩下的實牆區段
 function solidWithHoles(a, b, holes) {
@@ -185,6 +186,8 @@ export function buildCorridor(scene, colliders) {
   box(group, C.hydrantRed, 0.21, 0.08, 0.6, xE - 0.1, 1.5, cabZ);
   colliders.push(makeCollider(xE - 0.2, xE, cabZ - 0.45, cabZ + 0.45, 0, 1.65, '消防栓箱'));
   box(group, C.sign, K.width * 0.8, 0.35, 0.05, xc, 2.45, 1.0);
+  decal(group, signTex(), K.width * 0.8, 0.35, xc, 2.45, 1.0 + 0.027, 0);
+  decal(group, signTex(), K.width * 0.8, 0.35, xc, 2.45, 1.0 - 0.027, Math.PI);
   box(group, C.metal, 0.02, 0.2, 0.02, xc - 0.8, 2.7, 1.0);
   box(group, C.metal, 0.02, 0.2, 0.02, xc + 0.8, 2.7, 1.0);
 }

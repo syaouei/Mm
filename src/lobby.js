@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { box, mat, gridTexture, makeCollider } from './room.js';
 import { geo } from './layout.js';
+import { decal, brickTex, steelTex, callTex, hydrantTex, planTex, binTex } from './decals.js';
 
 // 方形空間（草圖）：在走廊東側、B 北側；東牆有樓梯、一段牆、電梯 1、電梯 2；北牆是多功能展演廳；
 // 南側（B 的北牆）旁有兩個垃圾桶。西側是走廊與教室 C 的窗戶牆。
@@ -96,6 +97,10 @@ export function buildLobby(scene, colliders) {
   box(group, null, xL1 + T - xE, H, T, (xE + xL1 + T) / 2, H / 2, zS - T / 2, { material: wallMat });
   colliders.push(makeCollider(xE, xL1 + T, zS - T, zS, 0, H, '展演廳北牆'));
   text(['多功能展演廳', 'Auditorium'], 3.2, 1.4, (xE + xL1) / 2, 2.0, zS + 0.02, 0, C.signBlue);
+  // 消防栓櫃與 4F 平面圖看板（照片：在電梯旁的牆上）
+  box(group, C.hydrant, 0.9, 1.2, 0.2, xE + 0.8, 1.2, zS + 0.1);
+  decal(group, hydrantTex(), 0.9, 1.2, xE + 0.8, 1.2, zS + 0.205, 0);
+  decal(group, planTex(), 0.9, 1.3, xE + 2.3, 1.55, zS + 0.01, 0);
 
   // ---------- 東牆：一段牆、樓梯、電梯 1、電梯 2 ----------
   box(group, null, T, H, D, xL1 + T / 2, H / 2, zc, { material: wallMat });
@@ -118,15 +123,19 @@ export function buildLobby(scene, colliders) {
   // 電梯 1、電梯 2（紅磚柱夾著兩部電梯門）
   const zBr = zS + 12.2;
   box(group, C.brick, 0.04, H, 4.4, xL1 - 0.02, H / 2, zBr);
+  decal(group, brickTex(), 4.4, H, xL1 - 0.043, H / 2, zBr, -Math.PI / 2, { repeat: [4.4 / 1.2, H / 1.2] });
   for (const ze of [zS + 11.2, zS + 13.2]) {
     box(group, C.stainless, 0.02, 2.1, 1.0, xL1 - 0.05, 1.05, ze);
+    decal(group, steelTex(), 1.0, 2.1, xL1 - 0.063, 1.05, ze, -Math.PI / 2);
   }
   text(['4F'], 0.6, 0.3, xL1 - 0.07, 2.3, zBr, -Math.PI / 2, C.signBlue);
   box(group, C.stainless, 0.02, 0.9, 0.14, xL1 - 0.05, 1.2, zBr);
+  decal(group, callTex(), 0.14, 0.9, xL1 - 0.063, 1.2, zBr, -Math.PI / 2);
 
   // ---------- 南側（B 的北牆旁）：兩個垃圾桶 ----------
   for (const tx of [xW + 6.5, xW + 7.8]) {
     box(group, C.trash, 0.9, 1.0, 0.8, tx, 0.5, z0 - 0.6);
+    decal(group, binTex(), 0.9, 1.0, tx, 0.5, z0 - 1.005, Math.PI);
     colliders.push(makeCollider(tx - 0.45, tx + 0.45, z0 - 1.0, z0 - 0.2, 0, 1.0, '垃圾桶'));
   }
 }

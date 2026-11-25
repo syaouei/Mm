@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { box, makeCollider } from './room.js';
 import { geo } from './layout.js';
+import { decal, plateTex, woodMaterial } from './decals.js';
 
 // 所有可以開關的門。xOuter = 走廊側的牆面；roomDir = 教室內側相對於牆面的方向（+1 = 東、-1 = 西）
 // inward：true = 門向教室內開（後門），門扇打開後貼在後牆上；false = 門向走廊開（前門，雙門）
@@ -16,11 +17,11 @@ export function doorSpans() {
   const bm = mirror(bz0, bz0 + bw), fm = mirror(fz0, fz0 + fw);
   const bc = shift(bz0, bz0 + bw), fc = shift(fz0, fz0 + fw);
   return [
-    { name: '教室A前門', z0: fz0, z1: fz0 + fw, double: true, inward: false, xOuter: g.xE, roomDir: 1 },
+    { name: '教室A前門', z0: fz0, z1: fz0 + fw, double: true, inward: false, xOuter: g.xE, roomDir: 1, plate: 'K416 教室' },
     { name: '教室A後門', z0: bz0, z1: bz0 + bw, double: false, inward: true, hinge: 'z1', xOuter: g.xE, roomDir: 1 },
     { name: '教室B前門', ...fm, double: true, inward: false, xOuter: g.xE, roomDir: 1 },
     { name: '教室B後門', ...bm, double: false, inward: true, hinge: 'z0', xOuter: g.xE, roomDir: 1 },
-    { name: '教室C前門（K413）', ...fc, double: true, inward: false, xOuter: g.xW, roomDir: -1 },
+    { name: '教室C前門（K413）', ...fc, double: true, inward: false, xOuter: g.xW, roomDir: -1, plate: 'K413 教室' },
     { name: '教室C後門', ...bc, double: false, inward: true, hinge: 'z1', xOuter: g.xW, roomDir: -1 },
   ];
 }
@@ -31,7 +32,7 @@ export function buildDoors(scene, colliders) {
 
 const within = (p, a, b) => p >= Math.min(a, b) && p <= Math.max(a, b);
 
-function buildDoor(scene, colliders, { name, z0, z1, double, inward, hinge, xOuter, roomDir }) {
+function buildDoor(scene, colliders, { name, z0, z1, double, inward, hinge, xOuter, roomDir, plate }) {
   const { room, doors, colors: C, interaction } = CONFIG;
   const T = room.wallThickness;
   const xI = xOuter + roomDir * T;          // 教室側的牆面
@@ -54,8 +55,9 @@ function buildDoor(scene, colliders, { name, z0, z1, double, inward, hinge, xOut
 
   // 走廊側的門牌（白底、青色邊框）
   if (!inward) {
-    box(group, C.nameTeal, 0.012, 0.2, 0.42, xOuter - roomDir * 0.008, 2.4, zm);
-    box(group, C.switchPlate, 0.01, 0.14, 0.36, xOuter - roomDir * 0.014, 2.4, zm);
+    if (plate) decal(group, plateTex(plate), 0.42, 0.2, xOuter - roomDir * 0.012, 2.4, zm, (-roomDir * Math.PI) / 2);
+    // 刷卡機（照片：門旁的黑色讀卡機）
+    box(group, '#222427', 0.02, 0.14, 0.09, xOuter - roomDir * 0.02, 1.25, zm + 0.35);
   }
 
   // 門扇
@@ -71,7 +73,7 @@ function buildDoor(scene, colliders, { name, z0, z1, double, inward, hinge, xOut
     group.add(pivot);
     const len = L.b - L.a;
     const d = L.hinge === 'z0' ? 1 : -1;    // 門扇從鉸鏈往哪個 z 方向延伸
-    box(pivot, C.door, 0.035, h, len - 0.006, 0, h / 2, (d * len) / 2, { cast: true });
+    box(pivot, null, 0.035, h, len - 0.006, 0, h / 2, (d * len) / 2, { cast: true, material: woodMaterial() });
     box(pivot, C.metal, 0.05, 0.02, 0.12, -0.03 * dx, 1.0, d * (len - 0.08)); // 門把
     box(pivot, C.glassDark, 0.008, 0.4, 0.14, dx * 0.0185, 1.45, (d * len) / 2); // 小玻璃窗
     pivots.push({ pivot, sign: dx * d });
