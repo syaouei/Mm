@@ -131,7 +131,7 @@ export const CONFIG = {
   },
 
   lighting: {
-    ambient: 0.9,        // HemisphereLight 強度
+    ambient: 1.15,       // HemisphereLight 強度
     sun: 0.9,            // 投影陰影用的方向光（模擬頭頂整體照明）
     pointIntensity: 1.2, // 燈管下方的 PointLight
     pointDistance: 5,
@@ -198,8 +198,6 @@ export const CONFIG = {
   render: {
     maxPixelRatio: 1.5,
     touchMaxPixelRatio: 1.25, // 觸控裝置降低解析度以維持流暢
-    exposure: 1.0,        // 色調映射曝光
-    envIntensity: 0.15,   // 環境反射強度
     fov: 70,
   },
 };

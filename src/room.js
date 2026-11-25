@@ -21,81 +21,20 @@ export function placeRoom(group, colliders, { cx = 0, cz = 0, rot = 0, sz = 1 })
   }
 }
 
-// ---------- 寫實化：表面顆粒貼圖（程式產生，1 張貼圖 = 1 公尺） ----------
-// 用在所有一般材質的 map 與 roughnessMap：顏色有 ±4% 的斑駁、粗糙度有細微變化，
-// 看起來像漆面／灰泥，而不是純色塑膠。透明、發光材質不套用。
-let grainTex = null;
-export function grainTexture() {
-  if (grainTex) return grainTex;
-  const N = 256;
-  const c = document.createElement('canvas');
-  c.width = c.height = N;
-  const g = c.getContext('2d');
-  // 低頻斑駁：小張雜訊放大（平滑插值）
-  const s = document.createElement('canvas');
-  s.width = s.height = 16;
-  const sg = s.getContext('2d');
-  const sd = sg.createImageData(16, 16);
-  let seed = 7;
-  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  for (let i = 0; i < sd.data.length; i += 4) {
-    const v = 244 + rnd() * 11;
-    sd.data[i] = sd.data[i + 1] = sd.data[i + 2] = v; sd.data[i + 3] = 255;
-  }
-  sg.putImageData(sd, 0, 0);
-  g.imageSmoothingEnabled = true;
-  g.drawImage(s, 0, 0, N, N);
-  // 高頻顆粒
-  const d = g.getImageData(0, 0, N, N);
-  for (let i = 0; i < d.data.length; i += 4) {
-    const n = (rnd() - 0.5) * 8;
-    d.data[i] = Math.min(255, d.data[i] + n);
-    d.data[i + 1] = Math.min(255, d.data[i + 1] + n);
-    d.data[i + 2] = Math.min(255, d.data[i + 2] + n);
-  }
-  g.putImageData(d, 0, 0);
-  grainTex = new THREE.CanvasTexture(c);
-  grainTex.wrapS = grainTex.wrapT = THREE.RepeatWrapping;
-  grainTex.colorSpace = THREE.SRGBColorSpace;
-  grainTex.anisotropy = 8;
-  return grainTex;
-}
-
 const matCache = new Map();
 export function mat(color, extra = {}) {
   const key = color + JSON.stringify(extra);
   if (!matCache.has(key)) {
-    const plain = !extra.map && !extra.transparent && !extra.emissive;
-    const detail = plain ? { map: grainTexture(), roughnessMap: grainTexture() } : {};
-    matCache.set(key, new THREE.MeshStandardMaterial({ color, roughness: 0.85, metalness: 0, ...detail, ...extra }));
+    matCache.set(key, new THREE.MeshStandardMaterial({ color, roughness: 0.85, metalness: 0, ...extra }));
   }
   return matCache.get(key);
 }
 
-// 方塊幾何：UV 依實際尺寸（公尺）計算，貼圖在長牆上不會被拉長。依尺寸快取。
-const boxGeoCache = new Map();
-function sizedBox(sx, sy, sz) {
-  const key = `${sx.toFixed(2)},${sy.toFixed(2)},${sz.toFixed(2)}`;
-  let geo = boxGeoCache.get(key);
-  if (!geo) {
-    geo = new THREE.BoxGeometry(1, 1, 1);
-    const uv = geo.attributes.uv;
-    // BoxGeometry 面順序：+x, -x, +y, -y, +z, -z，每面 4 個頂點
-    const dims = [[sz, sy], [sz, sy], [sx, sz], [sx, sz], [sx, sy], [sx, sy]];
-    for (let f = 0; f < 6; f++) {
-      for (let k = 0; k < 4; k++) {
-        const i = f * 4 + k;
-        uv.setXY(i, uv.getX(i) * dims[f][0], uv.getY(i) * dims[f][1]);
-      }
-    }
-    boxGeoCache.set(key, geo);
-  }
-  return geo;
-}
+const unitBox = new THREE.BoxGeometry(1, 1, 1);
 
 // 以中心點與尺寸建立方塊
 export function box(parent, color, sx, sy, sz, x, y, z, opts = {}) {
-  const m = new THREE.Mesh(sizedBox(Math.abs(sx), Math.abs(sy), Math.abs(sz)), opts.material || mat(color));
+  const m = new THREE.Mesh(unitBox, opts.material || mat(color));
   m.scale.set(sx, sy, sz);
   m.position.set(x, y, z);
   m.castShadow = !!opts.cast;
@@ -104,48 +43,17 @@ export function box(parent, color, sx, sy, sz, x, y, z, opts = {}) {
   return m;
 }
 
-// 程式產生的磚格貼圖（不使用外部圖片）。寫實化：一張貼圖含 4×4 塊磚（重複次數相應縮為 1/4），
-// 每塊磚有輕微色差、表面斑點與邊緣亮暗（立體感），磚縫顏色由 line 決定。
+// 程式產生的格線貼圖（不使用外部圖片）：一格磚 + 邊緣磚縫
 export function gridTexture(fill, line, px = 128, lineWidth = 3) {
-  const TILES = 4, P = 128, N = P * TILES;
   const c = document.createElement('canvas');
-  c.width = c.height = N;
+  c.width = c.height = px;
   const g = c.getContext('2d');
-  let seed = fill.length * 131 + line.length * 7 + 3;
-  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const lw = Math.max(2, Math.round((lineWidth * P) / px));
-  for (let ty = 0; ty < TILES; ty++) {
-    for (let tx = 0; tx < TILES; tx++) {
-      const x0 = tx * P, y0 = ty * P;
-      g.fillStyle = fill;
-      g.fillRect(x0, y0, P, P);
-      // 每塊磚的色差
-      const shade = (rnd() - 0.5) * 0.08;
-      g.fillStyle = shade > 0 ? `rgba(255,255,255,${shade})` : `rgba(0,0,0,${-shade})`;
-      g.fillRect(x0, y0, P, P);
-      // 斑點（磁磚／礦纖板的顆粒）
-      for (let i = 0; i < 160; i++) {
-        const a = 0.03 + rnd() * 0.07;
-        g.fillStyle = rnd() < 0.5 ? `rgba(0,0,0,${a})` : `rgba(255,255,255,${a})`;
-        g.fillRect(x0 + rnd() * P, y0 + rnd() * P, 1 + rnd() * 2, 1 + rnd() * 2);
-      }
-      // 邊緣：上、左稍亮；下、右稍暗（立體感）
-      g.fillStyle = 'rgba(255,255,255,0.10)';
-      g.fillRect(x0 + lw, y0 + lw, P - lw, 2);
-      g.fillRect(x0 + lw, y0 + lw, 2, P - lw);
-      g.fillStyle = 'rgba(0,0,0,0.10)';
-      g.fillRect(x0 + lw, y0 + P - 2, P - lw, 2);
-      g.fillRect(x0 + P - 2, y0 + lw, 2, P - lw);
-      // 磚縫
-      g.fillStyle = line;
-      g.fillRect(x0, y0, P, lw);
-      g.fillRect(x0, y0, lw, P);
-    }
-  }
+  g.fillStyle = fill;
+  g.fillRect(0, 0, px, px);
+  g.fillStyle = line;
+  g.fillRect(0, 0, px, lineWidth);
+  g.fillRect(0, 0, lineWidth, px);
   const tex = new THREE.CanvasTexture(c);
-  // 呼叫端以「一格一次」設定 repeat；此貼圖含 4×4 格，因此把 repeat 自動除以 4
-  const origSet = tex.repeat.set.bind(tex.repeat);
-  tex.repeat.set = (rx, ry) => origSet(rx / TILES, ry / TILES);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 8;
