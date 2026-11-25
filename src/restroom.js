@@ -29,7 +29,8 @@ export function buildRestrooms(scene, colliders) {
   const granite = mat('#17191c', { roughness: 0.25, metalness: 0.1 });
   const mirror = mat('#8d9aa2', { roughness: 0.15, metalness: 0.6 });
 
-  function room4(x0, x1, kind) {
+  function room4(x0, x1, kind, depth) {
+    const zN = zS - depth;                 // 本房間北界（男廁較深、女廁維持原深度）
     const W = x1 - x0, D = zS - zN, zc = (zS + zN) / 2, xc = (x0 + x1) / 2;
     // 地面（男廁黑色花岗岩踢腳與地面深色帶）、天花板
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), floorMat);
@@ -68,9 +69,20 @@ export function buildRestrooms(scene, colliders) {
     const { x0, x1, zS: s, zN: n } = R;
     const beige = mat('#d8d2c4', { roughness: 0.6 });
     const granite2 = mat('#17191c', { roughness: 0.25, metalness: 0.1 });
-    // ---- 小便斗：西牆，7 個並排（照片），向北延伸；隔板、感應冲水盒、花崗岩地帶、燈帶 ----
+    // ---- 西側：洗手台（南段）與 7 個小便斗（北段），同在西牆 ----
+    const cz0 = s - 0.6, cz1 = s - 3.0;   // 洗手台
+    box(group, '#f4f4f1', 0.55, 0.06, cz0 - cz1, x0 + 0.3, 0.88, (cz0 + cz1) / 2, { material: porcelain });
+    box(group, '#f4f4f1', 0.55, 0.85, cz0 - cz1, x0 + 0.3, 0.44, (cz0 + cz1) / 2, { material: porcelain });
+    colliders.push(makeCollider(x0, x0 + 0.55, cz1, cz0, 0, 0.9, '男廁洗手台'));
+    for (const z of [cz0 - 0.4, (cz0 + cz1) / 2, cz1 + 0.4]) {
+      const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.18, 0.04, 24), porcelain);
+      bowl.scale.set(1, 1, 1.4); bowl.position.set(x0 + 0.3, 0.92, z); group.add(bowl);
+      box(group, C.metal, 0.05, 0.22, 0.05, x0 + 0.1, 1.02, z, { material: steel });
+    }
+    box(group, null, 0.02, 0.8, cz0 - cz1, x0 + 0.02, 1.5, (cz0 + cz1) / 2, { material: mirror });
+
     const uZ = [];
-    for (let i = 0; i < 7; i++) uZ.push(s - 1.4 - i * 0.8);
+    for (let i = 0; i < 7; i++) uZ.push(s - 3.4 - i * 0.8);
     const uTop = uZ[0] + 0.4, uBot = uZ[6] - 0.4;
     box(group, null, 0.8, 0.01, uTop - uBot, x0 + 0.4, 0.004, (uTop + uBot) / 2, { material: granite2 });
     box(group, '#f1f1ee', 0.14, 0.03, uTop - uBot, x0 + 0.07, 1.5, (uTop + uBot) / 2, { material: porcelain });
@@ -85,36 +97,20 @@ export function buildRestrooms(scene, colliders) {
       box(group, beige, 0.5, 1.2, 0.02, x0 + 0.25, 0.9, pz, { material: beige });
       colliders.push(makeCollider(x0, x0 + 0.5, pz - 0.01, pz + 0.01, 0, 1.5, '男廁小便隔板'));
     }
-    // ---- 洗手台：東牆（靠女廁那面），白色檯面、3 個洗手盆、鏡面 ----
-    const cz0 = s - 0.6, cz1 = s - 3.2;
-    box(group, '#f4f4f1', 0.55, 0.06, cz0 - cz1, x1 - 0.3, 0.88, (cz0 + cz1) / 2, { material: porcelain });
-    box(group, '#f4f4f1', 0.55, 0.85, cz0 - cz1, x1 - 0.3, 0.44, (cz0 + cz1) / 2, { material: porcelain });
-    colliders.push(makeCollider(x1 - 0.55, x1, cz1, cz0, 0, 0.9, '男廁洗手台'));
-    for (const z of [cz0 - 0.4, (cz0 + cz1) / 2, cz1 + 0.4]) {
-      const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.18, 0.04, 24), porcelain);
-      bowl.scale.set(1, 1, 1.4); bowl.position.set(x1 - 0.3, 0.92, z); group.add(bowl);
-      box(group, C.metal, 0.05, 0.22, 0.05, x1 - 0.1, 1.02, z, { material: steel });
-    }
-    box(group, null, 0.02, 0.8, cz0 - cz1, x1 - 0.02, 1.5, (cz0 + cz1) / 2, { material: mirror });
-    // ---- 北端東側：兩間有門的隔間（照片：蓝色門、白色隔板、門框上方不鏽鋼軌） ----
-    const stallDepth = 1.4, zStalls = [[n + 0.05, n + 1.05], [n + 1.05, n + 2.05]];
-    // 隔板（北、中、南）：沿東西方向，從東牆向西延伸 stallDepth
+    // ---- 東側北端：兩間有門的隔間（照片：蓝色門、白色隔板、不鏽鋼軌） ----
+    const stallDepth = 1.4;
+    const zStalls = [[n + 0.05, n + 1.05], [n + 1.05, n + 2.05]];
     for (const z of [n + 0.05, n + 1.05, n + 2.05]) {
       box(group, '#ecebe7', stallDepth, 1.9, 0.03, x1 - stallDepth / 2, 0.95, z, { material: stallWhite });
       colliders.push(makeCollider(x1 - stallDepth, x1, z - 0.015, z + 0.015, 0, 1.9, '男廁隔間隔板'));
     }
     for (const [za, zb] of zStalls) {
       const zc = (za + zb) / 2;
-      // 門（朝西開口，寬 1.0）：藍色
       box(group, null, 0.03, 1.6, zb - za - 0.06, x1 - stallDepth, 0.95, zc, { material: blue });
       colliders.push(makeCollider(x1 - stallDepth - 0.02, x1 - stallDepth + 0.02, za, zb, 0, 1.9, '男廁隔間門'));
-      // 馬桶（靠東牆）
       box(group, '#f5f5f2', 0.55, 0.42, 0.42, x1 - 0.35, 0.42, zc, { material: porcelain });
     }
-    // 隔間上方不鏽鋼軌
     box(group, C.metal, stallDepth, 0.03, 2.0, x1 - stallDepth / 2, 1.97, n + 1.05, { material: steel });
-    // 北牆窗（照片：北側高窗），位於隔間西側
-    // 北牆窗已在 room4 內建立；此處不重複
   }
 
   function womenRoom(R) {
@@ -140,8 +136,8 @@ export function buildRestrooms(scene, colliders) {
   }
 
   // 男廁（西）：x -21.8 ~ -16.6；女廁（東）：x -16.4 ~ -11.0
-  const men = room4(-21.8, -16.6, '男');
-  const women = room4(-16.4, -11.0, '女');
+  const men = room4(-21.8, -16.6, '男', 10.0);
+  const women = room4(-16.4, -11.0, '女', 7.6);
   menRoom(men);
   womenRoom(women);
 }
