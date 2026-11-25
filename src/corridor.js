@@ -187,9 +187,9 @@ export function buildCorridor(scene, colliders) {
   const spk = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.02, 20), mat('#e8e8e4'));
   spk.position.set(pXc, H - 0.012, pN + 0.8); group.add(spk);
 
-  // 門在東側短邊（走廊）；橱櫃、水槽在北側長邊（沿東西向，對面為門的另一端）；飲水機在南側長邊西端角落
+  // 門在東側短邊（走廊）；橱櫃、水槽、飲水機都在北側長邊：飲水機在西端，橱櫃接在其東側
   const wood2 = woodMaterial();
-  const cx0 = pIn + 0.2, cx1 = pOut - 0.2, cDepth = 0.6, cNz = pN + 0.05 + cDepth / 2;
+  const cx0 = pIn + 0.75, cx1 = pOut - 0.2, cDepth = 0.6, cNz = pN + 0.05 + cDepth / 2;
   box(group, null, cx1 - cx0, 0.85, cDepth, (cx0 + cx1) / 2, 0.425, cNz, { material: wood2, cast: true });       // 下櫃
   box(group, '#efeee9', cx1 - cx0 + 0.04, 0.04, cDepth + 0.04, (cx0 + cx1) / 2, 0.87, cNz, { cast: true });      // 石英台面
   const sinkX = pIn + 1.8;
@@ -197,11 +197,11 @@ export function buildCorridor(scene, colliders) {
   box(group, C.metal, 0.05, 0.25, 0.05, sinkX, 1.0, pN + 0.12);                                                  // 水龍頭
   box(group, null, cx1 - cx0, 0.7, 0.3, (cx0 + cx1) / 2, 1.75, pN + 0.2, { material: wood2, cast: true });        // 上櫃
   colliders.push(makeCollider(cx0, cx1, pN + 0.05, pN + 0.05 + cDepth, 0, 0.89, '茶水間橱櫃'));
-  // 飲水機（南側長邊西端角落）
-  const dX = pIn + 0.25, dZ = pS - 0.25;
-  box(group, '#1d1f22', 0.42, 1.2, 0.42, dX, 0.6, dZ, { cast: true });
-  box(group, '#a9b0b6', 0.32, 0.12, 0.2, dX, 0.9, dZ - 0.12);
-  colliders.push(makeCollider(dX - 0.21, dX + 0.21, dZ - 0.21, dZ + 0.21, 0, 1.2, '飲水機'));
+  // 飲水機（北側長邊西端）
+  const dX = pIn + 0.3, dZ = pN + 0.25;
+  box(group, '#1d1f22', 0.5, 1.2, 0.42, dX, 0.6, dZ, { cast: true });
+  box(group, '#a9b0b6', 0.4, 0.12, 0.2, dX, 0.9, dZ + 0.12);
+  colliders.push(makeCollider(dX - 0.25, dX + 0.25, dZ - 0.21, dZ + 0.21, 0, 1.2, '飲水機'));
 
   // 入口旁的 Pantry 標示（照片：門旁牆上的青色標示牌）
   decal(group, pantrySignTex(), 0.3, 0.375, xW + 0.006, 1.5, zNend + 2.1, Math.PI / 2);
