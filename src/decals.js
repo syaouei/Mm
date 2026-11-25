@@ -294,3 +294,18 @@ export function woodMaterial() {
   if (!woodMat) woodMat = new THREE.MeshStandardMaterial({ map: woodTex(), roughness: 0.6 });
   return woodMat;
 }
+
+// 下行樓梯踏面（地面開口）：由大廳側往牆側逐階變暗
+export const stairsDownTex = () => texOf('stairsDown', 512, 256, (g, w, h) => {
+  g.fillStyle = '#2b2e32';
+  g.fillRect(0, 0, w, h);
+  const n = 8;
+  for (let i = 0; i < n; i++) {
+    const t = i / (n - 1);
+    const c = Math.round(128 - 70 * t);
+    g.fillStyle = `rgb(${c},${c + 3},${c + 7})`;
+    g.fillRect(i * w / n + 3, 6, w / n - 6, h - 12);
+    g.fillStyle = 'rgba(0,0,0,0.4)';
+    g.fillRect(i * w / n, 6, 4, h - 12);
+  }
+});

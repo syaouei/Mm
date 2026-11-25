@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { box, mat, gridTexture, makeCollider } from './room.js';
 import { geo } from './layout.js';
-import { decal, brickTex, steelTex, callTex, numTex, hydrantTex, planTex, binTex } from './decals.js';
+import { decal, brickTex, steelTex, callTex, numTex, hydrantTex, planTex, binTex, stairsDownTex } from './decals.js';
 
 // 方形空間（草圖）：在走廊東側、B 北側；東牆有樓梯、一段牆、電梯 1、電梯 2；北牆是多功能展演廳；
 // 南側（B 的北牆）旁有兩個垃圾桶。西側是走廊與教室 C 的窗戶牆。
@@ -98,13 +98,11 @@ export function buildLobby(scene, colliders) {
   colliders.push(makeCollider(xE, xL1 + T, zS - T, zS, 0, H, '展演廳北牆'));
   text(['多功能展演廳', 'Auditorium'], 3.2, 1.4, (xE + xL1) / 2, 2.0, zS + 0.02, 0, C.signBlue);
   // 消防栓櫃與 4F 平面圖看板（照片：在電梯旁的牆上）
-  // 電梯左手邊的突出牆：面向電梯的南面（z = zS+7.45），朝南（+z）。消防栓與平面圖都貼在這面
-  const zFace = zS + 8.4;
-  const xHyd = xL1 - 2.5, xPlan = xL1 - 1.1;
-  box(group, C.hydrant, 0.9, 1.2, 0.2, xHyd, 1.2, zFace + 0.1);
-  decal(group, hydrantTex(), 0.9, 1.2, xHyd, 1.2, zFace + 0.205, 0);
-  decal(group, planTex(), 0.9, 1.3, xPlan, 1.55, zFace + 0.005, 0);
-  colliders.push(makeCollider(xHyd - 0.45, xHyd + 0.45, zFace, zFace + 0.2, 0, 1.65, '消防栓箱'));
+  // 消防栓：貼在突出牆朝大廳的西面（電梯左手邊）
+  const zHyd = zS + 8.85, xFaceW = xL1 - 3.4;
+  box(group, C.hydrant, 0.2, 1.2, 0.9, xFaceW - 0.1, 1.2, zHyd);
+  decal(group, hydrantTex(), 0.9, 1.2, xFaceW - 0.205, 1.2, zHyd, -Math.PI / 2);
+  colliders.push(makeCollider(xFaceW - 0.2, xFaceW, zHyd - 0.45, zHyd + 0.45, 0, 1.65, '消防栓箱'));
 
   // ---------- 東牆：一段牆、樓梯、電梯 1、電梯 2 ----------
   box(group, null, T, H, D, xL1 + T / 2, H / 2, zc, { material: wallMat });
@@ -112,17 +110,34 @@ export function buildLobby(scene, colliders) {
   box(group, C.corridorSkirting, Wd, sh, sd, xc, sh / 2, zS + sd / 2);
   box(group, C.corridorSkirting, sd, sh, D, xL1 - sd / 2, sh / 2, zc);
 
-  // 樓梯（草圖：東牆北段，沿東牆方向寬 2.4 m，往牆面升高）
-  const zSt = zS + 4.6;   // 上行與下行樓梯，寬 2.4 m
+  // 樓梯（照片）：北側（左）往下、南側（右）往上
+  // 上行段：實體台階，沿東牆逐階升高
+  const zUp0 = zS + 6.1, zUp1 = zS + 7.5, zUpC = (zUp0 + zUp1) / 2;
   for (let i = 0; i < 8; i++) {
     const hgt = (8 - i) * 0.18;
-    box(group, C.corridorWall, 0.3, hgt, 2.4, xL1 - 0.15 - i * 0.3, hgt / 2, zSt, { cast: true });
+    box(group, C.corridorWall, 0.3, hgt, zUp1 - zUp0, xL1 - 0.15 - i * 0.3, hgt / 2, zUpC, { cast: true });
   }
-  colliders.push(makeCollider(xL1 - 2.4, xL1, zSt - 1.2, zSt + 1.2, 0, 1.44, '樓梯'));
+  colliders.push(makeCollider(xL1 - 2.4, xL1, zUp0, zUp1, 0, 1.44, '上行樓梯'));
+  // 下行段：地面開口，貼皮畫出往下的踏面；開口朝大廳的邊有欄杆
+  const zDn0 = zS + 4.7, zDn1 = zS + 6.1, zDnC = (zDn0 + zDn1) / 2;
+  const dnMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(2.4, zDn1 - zDn0),
+    new THREE.MeshStandardMaterial({ map: stairsDownTex(), roughness: 0.7, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }),
+  );
+  dnMesh.rotation.x = -Math.PI / 2;
+  dnMesh.position.set(xL1 - 1.2, 0.006, zDnC);
+  group.add(dnMesh);
+  // 扶手：細管（不擋視線）
+  for (const z of [zDn0, zDn1]) box(group, C.metal, 2.4, 0.04, 0.04, xL1 - 1.2, 0.9, z);
+  box(group, C.metal, 0.04, 0.04, zDn1 - zDn0, xL1 - 2.4, 0.9, zDnC);
+  for (const z of [zDn0, zDnC, zDn1]) box(group, C.metal, 0.04, 0.9, 0.04, xL1 - 2.4, 0.45, z);
+  colliders.push(makeCollider(xL1 - 2.45, xL1 - 2.35, zDn0, zDn1, 0, 1.0, '下行欄杆'));
+  colliders.push(makeCollider(xL1 - 2.4, xL1, zDn0 - 0.04, zDn0, 0, 1.0, '下行欄杆'));
+  colliders.push(makeCollider(xL1 - 2.4, xL1, zDn1, zDn1 + 0.04, 0, 1.0, '下行欄杆'));
 
-  // 突出的牆（草圖：東牆中段，深 3.4 m、寬 1.7 m）
-  box(group, null, 3.4, H, 1.4, xL1 - 1.7, H / 2, zS + 7.7, { material: wallMat });
-  colliders.push(makeCollider(xL1 - 3.4, xL1, zS + 7.0, zS + 8.4, 0, H, '突出牆'));
+  // 突出牆：緊鄰電梯牆（北面接樓梯，南面接紅磚牆），深 3.4 m、厚 1.4 m
+  box(group, null, 3.4, H, 1.4, xL1 - 1.7, H / 2, zS + 8.85, { material: wallMat });
+  colliders.push(makeCollider(xL1 - 3.4, xL1, zS + 8.15, zS + 9.55, 0, H, '突出牆'));
 
   // 電梯牆（照片）：整面都是紅磚，只有兩台電梯、門框、門上不鏽鋼罩、呼叫面板與 4F 字樣
   const zE1 = zS + 10.6, zE2 = zS + 13.85;       // 兩台電梯中心（照片：中心距約 3.25 m）
