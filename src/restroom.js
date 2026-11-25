@@ -77,13 +77,24 @@ export function buildRestrooms(scene, colliders) {
       box(group, C.metal, 0.05, 0.22, 0.05, x0 + 0.1, 1.02, z, { material: steel });
     }
     box(group, null, 0.02, 0.8, cz0 - cz1, x0 + 0.02, 1.5, (cz0 + cz1) / 2, { material: mirror });
-    // 小便斗（東牆）與隔板
-    for (const z of [s - 0.8, s - 1.8, s - 2.8, s - 3.8]) {
-      box(group, '#f5f5f2', 0.38, 0.55, 0.36, x1 - 0.2, 0.7, z, { material: porcelain });
+    // 小便斗（東牆）：7 個並排（照片），每個下方有感應冲水盒、兩個之間有米色隔板；
+    // 地面沿牆為黑色花崗岩帶；牆上有白色窗台線；天花板沿此牆有帶百葉的燈帶
+    const uZ = [], uStep = 0.8;
+    for (let i = 0; i < 7; i++) uZ.push(s - 0.6 - i * uStep);
+    const beige = mat('#d8d2c4', { roughness: 0.6 });
+    const granite2 = mat('#17191c', { roughness: 0.25, metalness: 0.1 });
+    box(group, null, 0.8, 0.01, uZ[0] - uZ[6] + 0.8, x1 - 0.4, 0.004, (uZ[0] + uZ[6]) / 2 - 0.0, { material: granite2 });
+    box(group, '#f1f1ee', 0.14, 0.03, uZ[0] - uZ[6] + 0.8, x1 - 0.07, 1.5, (uZ[0] + uZ[6]) / 2, { material: porcelain });
+    box(group, C.fixture, 0.12, 0.12, uZ[0] - uZ[6] + 1.0, x1 - 0.05, H - 0.2, (uZ[0] + uZ[6]) / 2, { material: mat('#ffffff', { emissive: '#ffffff', emissiveIntensity: 0.6 }) });
+    for (const z of uZ) {
+      box(group, '#f5f5f2', 0.36, 0.5, 0.34, x1 - 0.18, 0.72, z, { material: porcelain });
+      box(group, '#b7bcc0', 0.02, 0.08, 0.1, x1 - 0.01, 1.22, z, { material: steel });   // 感應冲水盒
     }
-    colliders.push(makeCollider(x1 - 0.4, x1, s - 4.1, s - 0.6, 0, 1.0, '男廁小便斗'));
-    for (const z of [s - 1.3, s - 2.3, s - 3.3]) {
-      box(group, '#d7d9d6', 0.02, 1.1, 0.5, x1 - 0.22, 1.0, z, { material: stallWhite });
+    colliders.push(makeCollider(x1 - 0.36, x1, uZ[6] - 0.2, uZ[0] + 0.2, 0, 1.0, '男廁小便斗'));
+    for (let i = 0; i < 6; i++) {
+      const pz = (uZ[i] + uZ[i + 1]) / 2;
+      box(group, beige, 0.5, 1.2, 0.02, x1 - 0.25, 0.9, pz, { material: beige });
+      colliders.push(makeCollider(x1 - 0.5, x1, pz - 0.01, pz + 0.01, 0, 1.5, '男廁小便隔板'));
     }
     // 北側兩間蓝色隔間（照片）：隔板與門
     const sx0 = x0 + 2.0;
