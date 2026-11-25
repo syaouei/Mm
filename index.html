@@ -70,23 +70,32 @@
       .btn-sprint { width: 68px; height: 68px; right: calc(24px + env(safe-area-inset-right)); bottom: calc(28px + env(safe-area-inset-bottom)); }
       .btn-box { top: calc(10px + env(safe-area-inset-top)); right: calc(12px + env(safe-area-inset-right)); font-size: 16px; }
       .btn-fs { top: calc(10px + env(safe-area-inset-top)); right: calc(74px + env(safe-area-inset-right)); }
+      .btn-door { right: calc(24px + env(safe-area-inset-right)); bottom: calc(116px + env(safe-area-inset-bottom)); font-size: 16px; }
+      #prompt {
+        position: fixed; top: 14%; left: 50%; transform: translateX(-50%); z-index: 8;
+        padding: 8px 14px; border-radius: 6px; background: rgba(0, 0, 0, 0.6); color: #fff; white-space: nowrap;
+        font: 16px system-ui, -apple-system, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+        pointer-events: none; display: none;
+      }
+      #prompt.show { display: block; }
     </style>
   </head>
   <body>
     <div id="crosshair"></div>
+    <div id="prompt"></div>
     <div id="overlay">
       <div>
         <div class="desktop-only">
           <b>點擊畫面開始</b><br />
           滑鼠：看　W A S D：移動　Shift：衝刺<br />
-          F3：碰撞框　ESC：解除滑鼠鎖定<br />
+          E：開關門　F3：碰撞框　ESC：解除滑鼠鎖定<br />
           <small>若滑鼠沒有被鎖定：按住左鍵拖曳轉頭</small>
         </div>
         <div class="touch-only">
           <b>點一下開始</b><br />
           左手拖曳：移動（推越遠走越快）<br />
           右手拖曳：轉頭<br />
-          「跑」：切換衝刺　「框」：碰撞框<br />
+          「跑」：切換衝刺　「框」：碰撞框　「門」：開關門<br />
           建議橫向使用
         </div>
       </div>

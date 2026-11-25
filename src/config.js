@@ -94,6 +94,17 @@ export const CONFIG = {
     blind: '#d4cfc3',
     vent: '#cfcfcb',
     clock: '#ffffff',
+    corridorWall: '#ecebe6',
+    corridorFloor: '#5a5d61',
+    corridorGrout: '#4a4d51',
+    corridorStrip: '#b8babb',
+    corridorSkirting: '#3c4045',
+    frame: '#2b2e33',
+    glass: '#b7d0d4',
+    blind: '#8d9096',
+    outdoor: '#7d9473',
+    extinguisher: '#b8322a',
+    acrylic: '#eef3f5',
   },
 
   lighting: {
@@ -119,6 +130,23 @@ export const CONFIG = {
     pitchLimitDeg: 85,
     // 起始位置：後排、靠門側通道，面向前牆
     start: { fromDoorWall: 0.4, fromBackWall: 0.8 },
+  },
+
+  // 教室外的走廊（照片：窗戶在一側、其他教室門在另一側）
+  corridor: {
+    width: 2.6,        // 走廊寬（教室外牆到窗戶牆）— 估計
+    extend: 5,         // 教室前後各延伸多少 m — 估計
+    windowBay: 1.6,    // 每格窗戶寬 — 估計
+    windowSill: 0.8,   // 窗台高 — 估計
+    windowTop: 2.6,    // 窗戶上緣 — 估計
+    lightSpacing: 3.0, // 天花板燈的間距 — 估計
+    stripSpacing: 2.4, // 地板導引線的間距 — 估計
+  },
+
+  // 互動
+  interaction: {
+    doorReach: 1.4,    // 離門多近才能開關（m）
+    doorDuration: 1.2, // 門開或關所需秒數
   },
 
   // 手機 / 平板觸控操作

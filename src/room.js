@@ -7,7 +7,7 @@ export function makeCollider(minX, maxX, minZ, maxZ, minY, maxY, label) {
 }
 
 const matCache = new Map();
-function mat(color, extra = {}) {
+export function mat(color, extra = {}) {
   const key = color + JSON.stringify(extra);
   if (!matCache.has(key)) {
     matCache.set(key, new THREE.MeshStandardMaterial({ color, roughness: 0.85, metalness: 0, ...extra }));
@@ -18,7 +18,7 @@ function mat(color, extra = {}) {
 const unitBox = new THREE.BoxGeometry(1, 1, 1);
 
 // 以中心點與尺寸建立方塊
-function box(parent, color, sx, sy, sz, x, y, z, opts = {}) {
+export function box(parent, color, sx, sy, sz, x, y, z, opts = {}) {
   const m = new THREE.Mesh(unitBox, opts.material || mat(color));
   m.scale.set(sx, sy, sz);
   m.position.set(x, y, z);
@@ -29,7 +29,7 @@ function box(parent, color, sx, sy, sz, x, y, z, opts = {}) {
 }
 
 // 程式產生的格線貼圖（不使用外部圖片）：一格磚 + 邊緣磚縫
-function gridTexture(fill, line, px = 128, lineWidth = 3) {
+export function gridTexture(fill, line, px = 128, lineWidth = 3) {
   const c = document.createElement('canvas');
   c.width = c.height = px;
   const g = c.getContext('2d');
@@ -82,7 +82,6 @@ export function buildRoom(scene) {
     // [sx, sz, cx, cz, label]
     [W + 2 * T, T, 0, zMin - T / 2, '前牆'],
     [W + 2 * T, T, 0, zMax + T / 2, '後牆'],
-    [T, L, xMin - T / 2, 0, '門側牆'],
     [T, L, xMax + T / 2, 0, '窗側牆'],
   ];
   for (const [sx, sz, cx, cz, label] of walls) {
@@ -96,7 +95,7 @@ export function buildRoom(scene) {
   box(group, null, pillar.width, H, pillar.depth, pillar.centerX, H / 2, zMax - pillar.depth / 2, { material: wallMat });
   colliders.push(makeCollider(pMinX, pMaxX, pMinZ, zMax, 0, H, '柱子'));
 
-  // ---------- 門（-x 側牆，只是裝飾，不能開） ----------
+  // ---------- 門（教室內側的雙門為裝飾；後門在 door.js，走廊側牆在 corridor.js） ----------
   const doorX = xMin;
   const backDoor = {
     z0: zMax - doors.back.distFromBackWall - doors.back.width,
@@ -129,7 +128,6 @@ export function buildRoom(scene) {
       z += w;
     }
   }
-  buildDoor(backDoor, [1]);
   buildDoor(frontDoor, [0.66, 0.34]);
 
   // 時鐘（門側牆，雙門旁）
@@ -226,8 +224,8 @@ export function buildRoom(scene) {
   sun.target.position.set(0, 0, 0);
   sun.castShadow = true;
   sun.shadow.mapSize.set(lighting.shadowMapSize, lighting.shadowMapSize);
-  const half = Math.max(W, L) / 2 + 0.5;
-  Object.assign(sun.shadow.camera, { left: -half, right: half, top: half, bottom: -half, near: 0.5, far: H + 10 });
+  const half = Math.max(W / 2 + T + CONFIG.corridor.width, L / 2 + CONFIG.corridor.extend) + 1;
+  Object.assign(sun.shadow.camera, { left: -half, right: half, top: half, bottom: -half, near: 0.5, far: H + 25 });
   sun.shadow.bias = -0.0005;
   sun.shadow.normalBias = 0.02;
   scene.add(sun, sun.target);

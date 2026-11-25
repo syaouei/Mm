@@ -115,6 +115,7 @@ export class Player {
     let x = this.x, z = this.z;
     if (axis === 'x') x += d; else z += d;
     for (const b of this.colliders) {
+      if (b.disabled) continue; // 已開啟的門不擋路
       if (b.minY > CONFIG.player.eyeHeight) continue; // 頭頂以上的物件不擋路
       if (x + r > b.minX && x - r < b.maxX && z + r > b.minZ && z - r < b.maxZ) {
         if (axis === 'x') x = d > 0 ? b.minX - r - EPS : b.maxX + r + EPS;

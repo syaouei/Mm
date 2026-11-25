@@ -5,7 +5,7 @@ import { CONFIG } from './config.js';
 //   右半邊：拖曳 → 轉動視角
 //   右下按鈕：「跑」切換衝刺；右上：「框」碰撞框、「⛶」全螢幕
 export class TouchControls {
-  constructor(player, canvas, debug) {
+  constructor(player, canvas, debug, onDoor) {
     this.player = player;
     this.canvas = canvas;
     this.enabled = false;
@@ -31,6 +31,7 @@ export class TouchControls {
       boxBtn.classList.toggle('on', debug.boxes.visible);
     });
     this.ui.append(this.sprintBtn, boxBtn);
+    this.ui.appendChild(button('btn-door', '門', () => onDoor?.()));
 
     if (document.fullscreenEnabled) {
       const fsBtn = button('btn-fs', '⛶', () => {
