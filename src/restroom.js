@@ -114,6 +114,10 @@ export function buildRestrooms(scene, colliders) {
       box(group, '#f5f5f2', 0.55, 0.42, 0.42, x1 - 0.35, 0.42, zc, { material: porcelain });
     }
     box(group, C.metal, stallDepth, 0.03, 2.0, x1 - stallDepth / 2, 1.97, n + 1.05, { material: steel });
+    // 隔間南側（右側）的空地全部做成牆：厚度與隔間進深相同（1.4 m），高度到天花板（照片與指示）
+    const zWB0 = n + 2.05, zWB1 = s - 1.0;
+    box(group, null, stallDepth, H, zWB1 - zWB0, x1 - stallDepth / 2, H / 2, (zWB0 + zWB1) / 2, { material: wallMat });
+    colliders.push(makeCollider(x1 - stallDepth, x1, zWB0, zWB1, 0, H, '男廁東側實牆'));
   }
 
   function womenRoom(R) {
