@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { CONFIG } from './config.js';
 import { geo } from './layout.js';
 import { buildRoom } from './room.js';
@@ -18,10 +19,18 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, maxRatio));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
+// 寫實化：電影感色調映射（高光不過曝、色彩較自然）
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = CONFIG.render.exposure;
 document.body.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#202326');
+// 寫實化：環境反射（Three.js 內建的室內環境，程式產生），讓金屬、瓷器、亮面地磚有反光
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = CONFIG.render.envIntensity;
+pmrem.dispose();
 
 const camera = new THREE.PerspectiveCamera(CONFIG.render.fov, window.innerWidth / window.innerHeight, 0.05, 80);
 
