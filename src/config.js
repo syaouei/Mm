@@ -98,7 +98,7 @@ export const CONFIG = {
     corridorFloor: '#5a5d61',
     corridorGrout: '#4a4d51',
     corridorStrip: '#b8babb',
-    corridorSkirting: '#3c4045',
+    corridorSkirting: '#a7a8a6',
     frame: '#2b2e33',
     glass: '#b7d0d4',
     blind: '#8d9096',
