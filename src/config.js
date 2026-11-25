@@ -105,6 +105,11 @@ export const CONFIG = {
     outdoor: '#7d9473',
     extinguisher: '#b8322a',
     acrylic: '#eef3f5',
+    sign: '#2a8c8c',
+    signBlue: '#1e4e6b',
+    brick: '#7b3b33',
+    stainless: '#c5c9cd',
+    darkDoor: '#3a3431',
   },
 
   lighting: {
@@ -135,7 +140,8 @@ export const CONFIG = {
   // 教室外的走廊（照片：窗戶在一側、其他教室門在另一側）
   corridor: {
     width: 2.6,        // 走廊寬（教室外牆到窗戶牆）— 估計
-    extend: 5,         // 教室前後各延伸多少 m — 估計
+    frontExtend: 8.25, // 前門側（-z，教室前方）延伸多少 m — 估計
+    backExtend: 3.25,  // 後門側（+z，電梯端）延伸多少 m — 估計
     windowBay: 1.6,    // 每格窗戶寬 — 估計
     windowSill: 0.8,   // 窗台高 — 估計
     windowTop: 2.6,    // 窗戶上緣 — 估計

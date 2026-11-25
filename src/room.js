@@ -128,7 +128,6 @@ export function buildRoom(scene) {
       z += w;
     }
   }
-  buildDoor(frontDoor, [0.66, 0.34]);
 
   // 時鐘（門側牆，雙門旁）
   const clock = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.04, 32), mat(C.clock));
@@ -224,7 +223,7 @@ export function buildRoom(scene) {
   sun.target.position.set(0, 0, 0);
   sun.castShadow = true;
   sun.shadow.mapSize.set(lighting.shadowMapSize, lighting.shadowMapSize);
-  const half = Math.max(W / 2 + T + CONFIG.corridor.width, L / 2 + CONFIG.corridor.extend) + 1;
+  const half = Math.max(W / 2 + T + CONFIG.corridor.width, L / 2 + Math.max(CONFIG.corridor.frontExtend, CONFIG.corridor.backExtend)) + 1;
   Object.assign(sun.shadow.camera, { left: -half, right: half, top: half, bottom: -half, near: 0.5, far: H + 25 });
   sun.shadow.bias = -0.0005;
   sun.shadow.normalBias = 0.02;

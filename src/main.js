@@ -3,7 +3,7 @@ import { CONFIG } from './config.js';
 import { buildRoom } from './room.js';
 import { buildFurniture } from './furniture.js';
 import { buildCorridor } from './corridor.js';
-import { buildBackDoor } from './door.js';
+import { buildDoors } from './door.js';
 import { Player } from './player.js';
 import { Debug } from './debug.js';
 import { TouchControls } from './touch.js';
@@ -26,7 +26,7 @@ const room = buildRoom(scene);
 const furniture = buildFurniture(scene);
 const colliders = [...room.colliders, ...furniture.colliders];
 buildCorridor(scene, colliders);
-const door = buildBackDoor(scene, colliders);
+const doors = buildDoors(scene, colliders);
 
 // 靜態場景：陰影預設只算一次，門在動的時候才重算
 renderer.shadowMap.autoUpdate = false;
@@ -35,12 +35,19 @@ renderer.shadowMap.needsUpdate = true;
 const player = new Player(camera, renderer.domElement, colliders);
 const debug = new Debug(scene, colliders);
 
-// ---------- 開關門：E 鍵，或觸控的「門」鈕 ----------
+// ---------- 開關門：走到門附近，按 E 或觸控的「門」鈕 ----------
 const prompt = document.getElementById('prompt');
-const nearDoor = () =>
-  Math.hypot(player.x - door.center.x, player.z - door.center.z) < CONFIG.interaction.doorReach;
+const nearestDoor = () => {
+  let best = null, bestDist = Infinity;
+  for (const d of doors) {
+    const dist = Math.hypot(player.x - d.center.x, player.z - d.center.z);
+    if (dist < bestDist) { best = d; bestDist = dist; }
+  }
+  return bestDist < CONFIG.interaction.doorReach ? best : null;
+};
 const useDoor = () => {
-  if (nearDoor()) door.toggle(player.x, player.z);
+  const d = nearestDoor();
+  if (d) d.toggle(player.x, player.z);
 };
 window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyE' && !e.repeat && player.active) {
@@ -53,14 +60,11 @@ const touch = new TouchControls(player, renderer.domElement, debug, useDoor);
 let lastMsg = null;
 function updatePrompt() {
   let msg = '';
-  if (nearDoor()) {
-    if (!door.open) {
-      msg = touch.enabled ? '點「門」鈕開門' : '按 E 開門';
-    } else if (door.occupied(player.x, player.z)) {
-      msg = '門板擺動範圍內，請退後一點再關門';
-    } else {
-      msg = touch.enabled ? '點「門」鈕關門' : '按 E 關門';
-    }
+  const d = nearestDoor();
+  if (d) {
+    const act = d.open ? '關' : '開';
+    if (d.open && d.occupied(player.x, player.z)) msg = '門板擺動範圍內，請退後一點再關門';
+    else msg = touch.enabled ? `點「門」鈕${act}${d.name}` : `按 E ${act}${d.name}`;
   }
   if (msg !== lastMsg) {
     lastMsg = msg;
@@ -96,11 +100,13 @@ renderer.setAnimationLoop((t) => {
   timer.update(t);
   const dt = Math.min(timer.getDelta(), 0.1); // 分頁切回來時避免一次跳太遠
   player.update(dt);
-  if (door.update(dt)) renderer.shadowMap.needsUpdate = true;
+  let moving = false;
+  for (const d of doors) if (d.update(dt)) moving = true;
+  if (moving) renderer.shadowMap.needsUpdate = true; // 門在動時才重算陰影
   updatePrompt();
   debug.update(dt, player);
   renderer.render(scene, camera);
 });
 
 // 方便在 console 除錯
-window.__app = { scene, camera, player, colliders, CONFIG, door };
+window.__app = { scene, camera, player, colliders, CONFIG, doors };
