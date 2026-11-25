@@ -71,6 +71,11 @@
       .btn-box { top: calc(10px + env(safe-area-inset-top)); right: calc(12px + env(safe-area-inset-right)); font-size: 16px; }
       .btn-fs { top: calc(10px + env(safe-area-inset-top)); right: calc(74px + env(safe-area-inset-right)); }
       .btn-door { right: calc(24px + env(safe-area-inset-right)); bottom: calc(116px + env(safe-area-inset-bottom)); font-size: 16px; }
+      .btn-jump { right: calc(24px + env(safe-area-inset-right)); bottom: calc(204px + env(safe-area-inset-bottom)); width: 60px; height: 60px; font-size: 16px; }
+      /* 電腦版全螢幕按鈕（右上） */
+      #fsDesk { position: fixed; top: 10px; right: 12px; z-index: 9; padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.5); background: rgba(0,0,0,0.5); color: #fff; font: 14px system-ui, -apple-system, "Noto Sans TC", sans-serif; cursor: pointer; }
+      #fsDesk.hidden { display: none; }
+      @media (pointer: coarse) { #fsDesk { display: none; } }
       #prompt {
         position: fixed; top: 14%; left: 50%; transform: translateX(-50%); z-index: 8;
         padding: 8px 14px; border-radius: 6px; background: rgba(0, 0, 0, 0.6); color: #fff; white-space: nowrap;
@@ -83,12 +88,13 @@
   <body>
     <div id="crosshair"></div>
     <div id="prompt"></div>
+    <button id="fsDesk" type="button">全螢幕</button>
     <div id="overlay">
       <div>
         <div class="desktop-only">
           <b>點擊畫面開始</b><br />
           滑鼠：看　W A S D：移動　Shift：衝刺<br />
-          E：開關門　F3：碰撞框　ESC：解除滑鼠鎖定<br />
+          空白鍵：跳　E：開關門　F3：碰撞框　ESC：解除滑鼠鎖定　全螢幕按鈕在右上<br />
           <small>若滑鼠沒有被鎖定：按住左鍵拖曳轉頭</small>
         </div>
         <div class="touch-only">

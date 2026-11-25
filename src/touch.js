@@ -32,6 +32,7 @@ export class TouchControls {
     });
     this.ui.append(this.sprintBtn, boxBtn);
     this.ui.appendChild(button('btn-door', '門', () => onDoor?.()));
+    this.ui.appendChild(button('btn-jump', '跳', () => player.requestJump()));
 
     if (document.fullscreenEnabled) {
       const fsBtn = button('btn-fs', '⛶', () => {

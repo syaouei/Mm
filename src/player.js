@@ -21,6 +21,10 @@ export class Player {
     // 觸控搖桿的類比輸入（-1~1），由 touch.js 寫入
     this.analog = { right: 0, forward: 0 };
     this.analogSprint = false;
+    // 跳躍：y 為腳底以上的高度，vy 為垂直速度
+    this.y = 0;
+    this.vy = 0;
+    this.jumpRequest = false;
     this.pitchLimit = (P.pitchLimitDeg * Math.PI) / 180;
 
     camera.rotation.order = 'YXZ';
@@ -41,6 +45,11 @@ export class Player {
     document.addEventListener('mousemove', this.onMouseMove);
     document.addEventListener('keydown', (e) => {
       if (!this.active) return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (!e.repeat) this.jumpRequest = true;
+        return;
+      }
       if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ShiftLeft', 'ShiftRight'].includes(e.code)) {
         this.keys.add(e.code);
         e.preventDefault();
@@ -72,8 +81,19 @@ export class Player {
     this.pitch = Math.max(-this.pitchLimit, Math.min(this.pitchLimit, this.pitch));
   }
 
+  // 觸控「跳」按鈕與空白鍵共用
+  requestJump() {
+    this.jumpRequest = true;
+  }
+
   update(dt) {
     const P = CONFIG.player;
+    // 跳躍與重力
+    if (this.jumpRequest && this.y <= 0) this.vy = P.jumpSpeed;
+    this.jumpRequest = false;
+    this.vy -= P.gravity * dt;
+    this.y += this.vy * dt;
+    if (this.y <= 0) { this.y = 0; this.vy = 0; }
     let f = 0, r = 0;
     if (this.keys.has('KeyW')) f += 1;
     if (this.keys.has('KeyS')) f -= 1;
@@ -148,7 +168,7 @@ export class Player {
   }
 
   syncCamera() {
-    this.camera.position.set(this.x, CONFIG.player.eyeHeight, this.z);
+    this.camera.position.set(this.x, CONFIG.player.eyeHeight + this.y, this.z);
     this.camera.rotation.set(this.pitch, this.yaw, 0);
   }
 }

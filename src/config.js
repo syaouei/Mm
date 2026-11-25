@@ -148,6 +148,8 @@ export const CONFIG = {
     eyeHeight: 1.6,
     radius: 0.2,         // 碰撞半徑（以正方形處理）
     walkSpeed: 2.0,
+    jumpSpeed: 3.6,      // 起跳初速（m/s）；跳高約 0.6 m
+    gravity: 9.8,
     sprintSpeed: 4.0,
     mouseSensitivity: 0.0022,
     pitchLimitDeg: 85,

@@ -77,6 +77,14 @@ window.addEventListener('keydown', (e) => {
 });
 const touch = new TouchControls(player, renderer.domElement, debug, useDoor);
 
+// 電腦版全螢幕按鈕（手機有另外的 ⛶ 鈕）
+const fsDesk = document.getElementById('fsDesk');
+fsDesk.addEventListener('click', () => {
+  if (document.fullscreenElement) document.exitFullscreen?.();
+  else document.documentElement.requestFullscreen?.().catch(() => {});
+});
+if (!document.fullscreenEnabled) fsDesk.classList.add('hidden');
+
 let lastMsg = null;
 function updatePrompt() {
   let msg = '';
