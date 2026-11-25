@@ -189,6 +189,14 @@ export function buildRoom(scene, opts = {}) {
   box(group, C.whiteboardFrame, wbW + 0.06, 1.26, 0.03, wbCx, 1.53, zMin + 0.015);
   box(group, null, wbW, 1.2, 0.035, wbCx, 1.53, zMin + 0.02, { material: mat(C.whiteboard, { roughness: 0.3 }) });
   box(group, C.whiteboardFrame, wbW, 0.03, 0.07, wbCx, 0.9, zMin + 0.04); // 筆槽
+  if (opts.boards) {
+    // 五片玻璃白板（照片）：沿牆一字排開
+    for (let k = 0; k < 5; k++) {
+      const bx = wbX0 + 0.4 + k * 1.0;
+      box(group, C.acrylic, 0.8, 0.8, 0.02, bx, 1.5, zMin + 0.03);
+      box(group, C.whiteboardFrame, 0.82, 0.82, 0.01, bx, 1.5, zMin + 0.025);
+    }
+  }
   // 投影布幕捲筒（收起狀態）
   if (!opts.minimal) {
   box(group, '#f0f0ee', 3.0, 0.08, 0.08, -2.0, H - 0.18, zMin + 0.05);

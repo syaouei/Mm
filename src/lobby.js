@@ -138,6 +138,12 @@ export function buildLobby(scene, colliders) {
   box(group, C.stainless, 0.02, 0.9, 0.14, xL1 - 0.05, 1.2, zBr);
   decal(group, callTex(), 0.14, 0.9, xL1 - 0.063, 1.2, zBr, -Math.PI / 2);
 
+  // ---------- 白色柱子（照片：B 教室出來會看到的柱子，柱子後方是教室 C） ----------
+  const colX = g.xE + 0.9, colZ = z0 - 0.75, colW = 0.7;
+  box(group, null, colW, H, colW, colX, H / 2, colZ, { material: wallMat });
+  colliders.push(makeCollider(colX - colW / 2, colX + colW / 2, colZ - colW / 2, colZ + colW / 2, 0, H, '白色柱子'));
+  box(group, C.cctv, 0.22, 0.12, 0.12, colX, 2.5, colZ - colW / 2 - 0.1);
+
   // ---------- 南側（B 的北牆旁）：兩個垃圾桶 ----------
   for (const tx of [g.xI + 2.0, g.xI + 3.1]) {
     box(group, C.trash, 0.9, 1.0, 0.8, tx, 0.5, z0 - 0.6);
