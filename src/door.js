@@ -2,9 +2,9 @@ import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { box, makeCollider } from './room.js';
 
-// 走廊側可以開的門（教室後門、教室前門）。
-// 每扇門的鉸鏈在門扇的一端（樞軸），門扇向走廊方向（-x）開約 90°。
-// 前門是雙門：兩扇各自從外側鉸鏈開，一起開關。
+// 可以開的門（教室後門、教室前門）。
+// inward：true = 門向教室內開（後門），門扇打開後貼在後牆上，樞軸在後牆端；
+//         false = 門向走廊開（前門，雙門），各自從外側鉸鏈開。
 
 // 所有可以開關的門的位置（z 範圍）
 export function doorSpans() {
@@ -12,8 +12,8 @@ export function doorSpans() {
   const back0 = room.length / 2 - doors.back.distFromBackWall - doors.back.width;
   const front0 = -room.length / 2 + doors.front.distFromFrontWall;
   return [
-    { name: '教室後門', z0: back0, z1: back0 + doors.back.width, double: false },
-    { name: '教室前門', z0: front0, z1: front0 + doors.front.width, double: true },
+    { name: '教室後門', z0: back0, z1: back0 + doors.back.width, double: false, inward: true },
+    { name: '教室前門', z0: front0, z1: front0 + doors.front.width, double: true, inward: false },
   ];
 }
 
@@ -21,14 +21,17 @@ export function buildDoors(scene, colliders) {
   return doorSpans().map((s) => buildDoor(scene, colliders, s));
 }
 
-function buildDoor(scene, colliders, { name, z0, z1, double }) {
+function buildDoor(scene, colliders, { name, z0, z1, double, inward }) {
   const { room, doors, colors: C, interaction } = CONFIG;
   const T = room.wallThickness, W = room.width;
   const xI = -W / 2; // 教室內側牆面
-  const xE = xI - T; // 走廊側牆面（門板在這一面）
+  const xE = xI - T; // 走廊側牆面
   const xMid = (xE + xI) / 2;
   const zm = (z0 + z1) / 2;
   const f = doors.frame, h = doors.height;
+  // 門扇的擺動方向（+1 = 往教室內，-1 = 往走廊）與門板所在面
+  const dx = inward ? 1 : -1;
+  const faceX = inward ? xI + 0.02 : xE - 0.02;
 
   const group = new THREE.Group();
   group.name = name;
@@ -44,21 +47,23 @@ function buildDoor(scene, colliders, { name, z0, z1, double }) {
   // 門扇
   const leafSpecs = double
     ? [{ a: z0, b: zm, hinge: 'z0' }, { a: zm, b: z1, hinge: 'z1' }]
-    : [{ a: z0, b: z1, hinge: 'z0' }];
+    : [{ a: z0, b: z1, hinge: inward ? 'z1' : 'z0' }];
   const pivots = [];
   const panels = [];
   for (const L of leafSpecs) {
     const pivotZ = L.hinge === 'z0' ? L.a : L.b;
     const pivot = new THREE.Group();
-    pivot.position.set(xE - 0.02, 0, pivotZ);
+    pivot.position.set(faceX, 0, pivotZ);
     group.add(pivot);
     const len = L.b - L.a;
-    const dir = L.hinge === 'z0' ? 1 : -1; // 門扇從鉸鏈往哪邊延伸
-    box(pivot, C.door, 0.035, h, len - 0.006, 0, h / 2, (dir * len) / 2, { cast: true });
-    box(pivot, C.metal, 0.05, 0.02, 0.12, -0.03, 1.0, dir * (len - 0.08)); // 門把
-    pivots.push({ pivot, sign: L.hinge === 'z0' ? -1 : 1 });
+    const d = L.hinge === 'z0' ? 1 : -1; // 門扇從鉸鏈往哪個 z 方向延伸
+    box(pivot, C.door, 0.035, h, len - 0.006, 0, h / 2, (d * len) / 2, { cast: true });
+    // 門把在門扇的自由端，朝向門的「外側」（教室內門在教室側）
+    box(pivot, C.metal, 0.05, 0.02, 0.12, -0.03 * dx, 1.0, d * (len - 0.08));
+    // 旋轉方向：讓門扇的自由端往 dx 方向擺開
+    pivots.push({ pivot, sign: dx * d });
     // 關著時擋住門口；開啟後 disabled 為 true，不擋路
-    const panel = makeCollider(xE - 0.05, xI, L.a, L.b, 0, h, name);
+    const panel = makeCollider(inward ? xE : xE - 0.05, inward ? xI + 0.05 : xI, L.a, L.b, 0, h, name);
     colliders.push(panel);
     panels.push(panel);
   }
@@ -72,9 +77,10 @@ function buildDoor(scene, colliders, { name, z0, z1, double }) {
     get open() {
       return open;
     },
-    // 站在門板擺動範圍內時不能關門（避免門板夾到人）
+    // 門扇擺動範圍內有人時不能關門（避免門板夾到人）
     occupied(px, pz) {
-      return px > xE - 1.0 && px < xI + 0.3 && pz > z0 - 0.4 && pz < z1 + 0.4;
+      const inSwing = inward ? px > xI - 0.3 && px < xI + 1.0 : px > xE - 1.0 && px < xI + 0.3;
+      return inSwing && pz > z0 - 0.4 && pz < z1 + 0.4;
     },
     toggle(px, pz) {
       if (!open) open = true;

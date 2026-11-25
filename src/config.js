@@ -31,7 +31,7 @@ export const CONFIG = {
     height: 2.1,
     frame: 0.06,
     // 門都在 -x 側牆；用「距後牆 / 距前牆」描述位置
-    back: { distFromBackWall: 0.3, width: 0.9 },     // 靠後牆的單扇門 — 估計
+    back: { distFromBackWall: 0.0, width: 0.9 },     // 靠後牆的單扇門 — 估計
     front: { distFromFrontWall: 0.2, width: 1.5 },   // 靠前牆的雙扇門（一大一小）— 估計
   },
 
