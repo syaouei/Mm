@@ -9,8 +9,8 @@
 
 export const CONFIG = {
   room: {
-    width: 8.0,   // x 方向（前牆長度）— 估計
-    length: 13,   // z 方向（前牆到後牆，教室的縱深）— 估計
+    width: 18,    // x 方向（白板牆長度）— 量測值
+    length: 8,    // z 方向（白板牆到後牆的縱深）— 量測值
     height: 2.9,  // 地板到天花板 — 估計（用門高 2.1m 的比例推算約 2.7~2.9m）
     wallThickness: 0.2,
     skirtingHeight: 0.1,
@@ -37,12 +37,12 @@ export const CONFIG = {
 
   // 課桌椅排列
   layout: {
-    rows: 8,            // 前後排數 — 估計（照片看起來比 6 排多）
-    colsPerSide: 4,     // 走道左右各幾組（每排共 colsPerSide*2 組）— 估計
+    rows: 5,            // 前後排數 — 估計（照片看起來比 6 排多）
+    colsPerSide: 8,     // 走道左右各幾組（每排共 colsPerSide*2 組）— 估計
     centerAisle: 1.2,   // 中央走道寬
     sideAisle: 0.8,     // 兩側靠牆通道寬
     frontGap: 2.2,      // 前牆到第一排桌子前緣（講台區）— 估計
-    rowPitch: 1.2,      // 相鄰兩排同位置的前後間距 — 估計
+    rowPitch: 1.1,      // 相鄰兩排同位置的前後間距 — 估計
     greyDeskRatio: 0.3, // 灰白桌面比例
     seed: 7,            // 桌面顏色隨機種子（固定以免每次重整都不同）
   },
@@ -120,8 +120,8 @@ export const CONFIG = {
     pointLightCount: 4,  // 最多幾盞 PointLight（效能考量）
     shadowMapSize: 2048,
     // 燈管格狀排列：沿 z 方向擺放的長條燈
-    fixtureCols: 3,
-    fixtureRows: 4,
+    fixtureCols: 6,
+    fixtureRows: 3,
     fixtureLength: 1.2,
     fixtureWidth: 0.3,
   },
@@ -140,7 +140,7 @@ export const CONFIG = {
   // 教室外的走廊（照片：窗戶在一側、其他教室門在另一側）
   corridor: {
     width: 2.6,        // 走廊寬（教室外牆到窗戶牆）— 估計
-    frontExtend: 13.4, // 前門側（-z）延伸多少 m，要涵蓋隔壁教室 — 估計
+    frontExtend: 8.4, // 前門側（-z）延伸多少 m，要涵蓋隔壁教室 — 估計
     backExtend: 3.25,  // 後門側（+z，電梯端）延伸多少 m — 估計
     windowBay: 1.6,    // 每格窗戶寬 — 估計
     windowSill: 0.8,   // 窗台高 — 估計

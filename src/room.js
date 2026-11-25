@@ -171,7 +171,7 @@ export function buildRoom(scene, opts = {}) {
   for (const [a, b] of segs) if (b > a) skirt(sd, b - a, xMin + sd / 2, (a + b) / 2);
 
   // ---------- 前牆：白板、布幕捲筒、白板燈、講桌、喇叭 ----------
-  const wbX0 = -3.2, wbX1 = 1.0; // 白板左右範圍 — 估計
+  const wbX0 = -5.0, wbX1 = 3.0; // 白板左右範圍 — 估計
   const wbW = wbX1 - wbX0, wbCx = (wbX0 + wbX1) / 2;
   box(group, C.whiteboardFrame, wbW + 0.06, 1.26, 0.03, wbCx, 1.53, zMin + 0.015);
   box(group, null, wbW, 1.2, 0.035, wbCx, 1.53, zMin + 0.02, { material: mat(C.whiteboard, { roughness: 0.3 }) });
