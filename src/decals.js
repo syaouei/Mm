@@ -339,3 +339,57 @@ export const pantryFloorTex = () => texOf('pantryFloor', 256, 256, (g, w, h) => 
   g.lineWidth = 3;
   g.strokeRect(0, 0, w, h);
 }, true);
+
+// 飲水機正面（照片）：黑色機身、左側圖示欄、上方黑色觸控顯示窗（紅字）、三顆按鈕、
+// 中段不鏽鋼出水口與拉絲出水盤、底部黑色櫃體，右上角標示貼紙
+export const dispenserTex = () => texOf('dispenser', 250, 600, (g, w, h) => {
+  g.fillStyle = '#1d1f22';
+  g.fillRect(0, 0, w, h);
+  // 左側圖示欄
+  g.fillStyle = '#e9e9e6';
+  for (let i = 0; i < 4; i++) {
+    g.fillRect(18, 150 + i * 36, 22, 4);
+    g.beginPath(); g.arc(50, 152 + i * 36, 6, 0, Math.PI * 2); g.fill();
+  }
+  g.fillStyle = '#e9e9e6';
+  txt(g, '防瀑非接觸', 46, 100, 16, '#e9e9e6', { bold: false, align: 'left' });
+  // 右上角貼紙
+  g.fillStyle = '#f2f2f0';
+  g.fillRect(186, 50, 52, 46);
+  g.fillStyle = '#5a6066';
+  g.fillRect(192, 58, 40, 4); g.fillRect(192, 68, 34, 3); g.fillRect(192, 77, 40, 3);
+  // 觸控顯示窗
+  g.fillStyle = '#07090c';
+  g.fillRect(70, 40, 150, 200);
+  g.strokeStyle = '#2d3642';
+  g.lineWidth = 2;
+  g.strokeRect(70, 40, 150, 200);
+  txt(g, '飲水機', 145, 78, 26, '#dfe9f5', { bold: true });
+  txt(g, '101', 145, 128, 36, '#ff3b30', { bold: true });
+  // 三顆按鈕（熱 / 溫 / 冷）
+  const btn = (x, y, color, label) => {
+    g.fillStyle = color;
+    g.beginPath(); g.arc(x, y, 18, 0, Math.PI * 2); g.fill();
+    txt(g, label, x, y, 16, '#ffffff', { bold: true });
+  };
+  btn(108, 180, '#c0392b', '熱');
+  btn(148, 180, '#d98b26', '溫');
+  btn(190, 180, '#2a7fb8', '冷');
+  // 出水口與不鏽鋼盤
+  g.fillStyle = '#9ea4aa';
+  g.fillRect(20, 268, 210, 90);
+  const grd = g.createLinearGradient(0, 268, 0, 358);
+  grd.addColorStop(0, '#d9dde1'); grd.addColorStop(0.5, '#aeb4ba'); grd.addColorStop(1, '#7d848b');
+  g.fillStyle = grd;
+  g.fillRect(24, 272, 202, 84);
+  g.strokeStyle = 'rgba(255,255,255,0.25)';
+  for (let y = 276; y < 356; y += 3) { g.beginPath(); g.moveTo(24, y); g.lineTo(226, y); g.stroke(); }
+  // 紅色水滴（熱水標誌）
+  g.fillStyle = '#c0392b';
+  g.beginPath();
+  g.moveTo(125, 300); g.bezierCurveTo(108, 322, 108, 336, 125, 344); g.bezierCurveTo(142, 336, 142, 322, 125, 300);
+  g.fill();
+  // 底部櫃體（黑色）
+  g.fillStyle = '#17191c';
+  g.fillRect(0, 380, w, h - 380);
+});

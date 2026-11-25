@@ -3,7 +3,7 @@ import { CONFIG } from './config.js';
 import { box, mat, gridTexture, makeCollider } from './room.js';
 import { doorSpans } from './door.js';
 import { geo } from './layout.js';
-import { decal, signTex, pantrySignTex, pantryWallTex, pantryFloorTex, woodMaterial } from './decals.js';
+import { decal, signTex, pantrySignTex, pantryWallTex, pantryFloorTex, woodMaterial, dispenserTex } from './decals.js';
 
 // 茶水間瓷磚牆材質（重複貼圖）
 function pantryWallWrap() {
@@ -201,6 +201,7 @@ export function buildCorridor(scene, colliders) {
   const dX = pIn + 0.3, dZ = pN + 0.25;
   box(group, '#1d1f22', 0.5, 1.2, 0.42, dX, 0.6, dZ, { cast: true });
   box(group, '#a9b0b6', 0.4, 0.12, 0.2, dX, 0.9, dZ + 0.12);
+  decal(group, dispenserTex(), 0.5, 1.2, dX, 0.6, dZ + 0.212, 0);   // 飲水機正面貼皮（照片）
   colliders.push(makeCollider(dX - 0.25, dX + 0.25, dZ - 0.21, dZ + 0.21, 0, 1.2, '飲水機'));
 
   // 入口旁的 Pantry 標示（照片：門旁牆上的青色標示牌）
