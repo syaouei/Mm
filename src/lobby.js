@@ -118,22 +118,16 @@ export function buildLobby(scene, colliders) {
     box(group, C.corridorWall, 0.3, hgt, zUp1 - zUp0, xL1 - 0.15 - i * 0.3, hgt / 2, zUpC, { cast: true });
   }
   colliders.push(makeCollider(xL1 - 2.4, xL1, zUp0, zUp1, 0, 1.44, '上行樓梯'));
-  // 下行段：地面開口，貼皮畫出往下的踏面；開口朝大廳的邊有欄杆
-  const zDn0 = zS + 4.7, zDn1 = zS + 6.1, zDnC = (zDn0 + zDn1) / 2;
+  // 下行段（照片）：貼著多功能展演廳的北牆，面向北牆往南下降；無扶手。
+  // 地面開口貼皮：寬 3.0 m（東西向，靠東牆）× 深 2.4 m（南北向，從北牆起算）
+  const dnW = 3.0, dnD = 2.4;
   const dnMesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(2.4, zDn1 - zDn0),
+    new THREE.PlaneGeometry(dnW, dnD),
     new THREE.MeshStandardMaterial({ map: stairsDownTex(), roughness: 0.7, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }),
   );
   dnMesh.rotation.x = -Math.PI / 2;
-  dnMesh.position.set(xL1 - 1.2, 0.006, zDnC);
+  dnMesh.position.set(xL1 - dnW / 2, 0.006, zS + dnD / 2);
   group.add(dnMesh);
-  // 扶手：細管（不擋視線）
-  for (const z of [zDn0, zDn1]) box(group, C.metal, 2.4, 0.04, 0.04, xL1 - 1.2, 0.9, z);
-  box(group, C.metal, 0.04, 0.04, zDn1 - zDn0, xL1 - 2.4, 0.9, zDnC);
-  for (const z of [zDn0, zDnC, zDn1]) box(group, C.metal, 0.04, 0.9, 0.04, xL1 - 2.4, 0.45, z);
-  colliders.push(makeCollider(xL1 - 2.45, xL1 - 2.35, zDn0, zDn1, 0, 1.0, '下行欄杆'));
-  colliders.push(makeCollider(xL1 - 2.4, xL1, zDn0 - 0.04, zDn0, 0, 1.0, '下行欄杆'));
-  colliders.push(makeCollider(xL1 - 2.4, xL1, zDn1, zDn1 + 0.04, 0, 1.0, '下行欄杆'));
 
   // 突出牆：緊鄰電梯牆（北面接樓梯，南面接紅磚牆），深 3.4 m、厚 1.4 m
   box(group, null, 3.4, H, 1.4, xL1 - 1.7, H / 2, zS + 8.85, { material: wallMat });
