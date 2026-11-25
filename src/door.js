@@ -21,7 +21,7 @@ export function doorSpans() {
     { name: '教室B前門', ...fm, double: true, inward: false, xOuter: g.xE, roomDir: 1 },
     { name: '教室B後門', ...bm, double: false, inward: true, hinge: 'z0', xOuter: g.xE, roomDir: 1 },
     { name: '教室C前門（K413）', z0: cz - 3.6, z1: cz - 2.1, double: true, inward: false, xOuter: g.xW, roomDir: -1, plate: 'K413 教室' },
-    { name: '教室C後門', z0: cz + 2.8, z1: cz + 3.7, double: false, inward: true, hinge: 'z1', xOuter: g.xW, roomDir: -1 },
+    { name: '教室C後門', z0: cz + 3.0, z1: cz + 3.9, double: false, inward: true, hinge: 'z1', xOuter: g.xW, roomDir: -1 },
   ];
 }
 

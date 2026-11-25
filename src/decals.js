@@ -48,21 +48,45 @@ function arrow(g, x, y, dir, len, color) {
   g.fill();
 }
 
-// 紅磚（照片：電梯之間的紅色磚牆，夾雜灰色磚）。1.2 m 一個循環
-export const brickTex = () => texOf('brick', 512, 512, (g, w, h) => {
+// 紅磚（照片）：1.2 m 一個循環，每排 4 塊、20 排；紅磚為主，約三成灰褐磚；有立體感與表面細紋
+export const brickTex = () => texOf('brick2', 1024, 1024, (g, w, h) => {
   const r = rng(11);
-  const rows = 20, rh = h / rows, bw = w / 4;
-  g.fillStyle = '#c9c4b8';
+  const cols = 4, rows = 20;
+  const bw = w / cols, rh = h / rows;
+  g.fillStyle = '#d6d1c6';   // 灰白勾縫
   g.fillRect(0, 0, w, h);
   for (let row = 0; row < rows; row++) {
     const off = (row % 2) * bw / 2;
-    for (let i = -1; i < 5; i++) {
-      const grey = r() < 0.25;
-      g.fillStyle = grey ? ['#8f918a', '#9ea097', '#7d8078'][Math.floor(r() * 3)] : ['#c4664c', '#d07a5c', '#b65a43'][Math.floor(r() * 3)];
-      g.fillRect(off + i * bw + 1.5, row * rh + 1.5, bw - 3, rh - 3);
+    for (let i = -1; i <= cols; i++) {
+      const grey = r() < 0.3;
+      const base = grey
+        ? ['#5f5e5a', '#6d6c67', '#55544f'][Math.floor(r() * 3)]
+        : ['#a84c38', '#b65a43', '#9b4433', '#c26a4e'][Math.floor(r() * 4)];
+      const x = off + i * bw + 3, y = row * rh + 3, bwd = bw - 6, bht = rh - 6;
+      g.fillStyle = base;
+      g.fillRect(x, y, bwd, bht);
+      const grd = g.createLinearGradient(0, y, 0, y + bht);
+      grd.addColorStop(0, 'rgba(255,255,255,0.16)');
+      grd.addColorStop(0.5, 'rgba(255,255,255,0)');
+      grd.addColorStop(1, 'rgba(0,0,0,0.22)');
+      g.fillStyle = grd;
+      g.fillRect(x, y, bwd, bht);
+      for (let k = 0; k < 6; k++) {
+        g.fillStyle = `rgba(0,0,0,${0.03 + r() * 0.05})`;
+        g.fillRect(x + r() * bwd, y + r() * bht, 2 + r() * 10, 1);
+      }
     }
   }
 }, true);
+
+// 門號牌「4」（深灰底、淺色數字）
+export const numTex = () => texOf('num', 128, 256, (g, w, h) => {
+  g.fillStyle = '#9ea4aa';
+  g.fillRect(0, 0, w, h);
+  g.fillStyle = '#3a3f44';
+  g.fillRect(14, 14, w - 28, h - 28);
+  txt(g, '4', w / 2, h / 2, 170, '#e6e9ec');
+});
 
 // 木紋門板（縱向紋理）
 export const woodTex = () => texOf('wood', 256, 512, (g, w, h) => {
@@ -99,40 +123,42 @@ export const steelTex = () => texOf('steel', 256, 512, (g, w, h) => {
   g.fillRect(w / 2 - 2, 0, 4, h);
 });
 
-// 電梯呼叫面板（不鏽鋼，上下箭頭，無障礙標誌，上方樓層顯示）
-export const callTex = () => texOf('call', 140, 500, (g, w, h) => {
+// 電梯呼叫面板（照片）：不鏽鋼面板，上方樓層顯示窗，中段無障礙標誌，上下箭頭鈕
+export const callTex = () => texOf('call2', 280, 1000, (g, w, h) => {
   const grd = g.createLinearGradient(0, 0, w, 0);
-  grd.addColorStop(0, '#9da3a8');
-  grd.addColorStop(0.5, '#e4e7e9');
-  grd.addColorStop(1, '#a9afb4');
+  grd.addColorStop(0, '#8f969c');
+  grd.addColorStop(0.45, '#e8ebed');
+  grd.addColorStop(1, '#9ea5ab');
   g.fillStyle = grd;
   g.fillRect(0, 0, w, h);
-  g.fillStyle = '#16181a';
-  g.fillRect(30, 30, 36, 50);
-  g.fillRect(74, 30, 36, 50);
-  txt(g, '4', 48, 55, 36, '#ff3b30', { bold: true });
-  txt(g, '4', 92, 55, 36, '#ff3b30', { bold: true });
-  const down = (y) => {
-    g.fillStyle = '#2b2f33';
-    g.beginPath();
-    g.arc(70, y, 22, 0, Math.PI * 2);
+  g.strokeStyle = '#6b7278';
+  g.lineWidth = 4;
+  g.strokeRect(4, 4, w - 8, h - 8);
+  // 樓層顯示（兩個暗窗、紅字）
+  g.fillStyle = '#121416';
+  g.fillRect(56, 60, 80, 130);
+  g.fillRect(144, 60, 80, 130);
+  txt(g, '4', 96, 125, 110, '#ff3b30', { bold: true });
+  txt(g, '4', 184, 125, 110, '#ff3b30', { bold: true });
+  const btn = (y, dir) => {
+    g.fillStyle = '#c7ced4';
+    circle(g, 140, y, 36);
     g.strokeStyle = '#5c6268';
     g.lineWidth = 3;
-    g.stroke();
+    g.beginPath(); g.arc(140, y, 36, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = '#3c4247';
     g.beginPath();
-    g.moveTo(58, y - 6); g.lineTo(82, y - 6); g.lineTo(70, y + 8); g.closePath();
-    g.fillStyle = '#e8edf0';
+    g.moveTo(140 - 16, y - dir * 8); g.lineTo(140 + 16, y - dir * 8); g.lineTo(140, y + dir * 12); g.closePath();
     g.fill();
   };
-  down(130);
+  btn(330, -1);
+  // 無障礙標誌（藍底白圈）
   g.fillStyle = '#1f6fb5';
-  g.fillRect(40, 240, 60, 60);
+  g.fillRect(96, 520, 88, 88);
   g.strokeStyle = '#ffffff';
-  g.lineWidth = 3;
-  g.beginPath();
-  g.arc(70, 262, 12, 0, Math.PI * 2);
-  g.stroke();
-  down(380);
+  g.lineWidth = 6;
+  g.beginPath(); g.arc(140, 548, 16, 0, Math.PI * 2); g.stroke();
+  btn(780, 1);
 });
 
 // 消防栓櫃正面（左：滅火器；右：消防栓與警報燈，紅字）

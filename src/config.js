@@ -172,7 +172,7 @@ export const CONFIG = {
   // 教室 C：正方形，比 A、B 小；白板與 K413 門都在朝走廊的東牆
   roomC: { width: 8, length: 8, offsetZ: 6.4 }, // offsetZ：C 北牆離方形空間北牆的距離（草圖：離 B 較近）
   layoutC: { colsPerSide: 2, rows: 4, frontGap: 2.2, rowPitch: 1.1 },
-  wallC: [-1.4, 3.4],   // C 白板（五片玻璃白板）在東牆上的範圍（沿牆方向）
+  wallC: [-1.4, 2.6],   // C 白板（五片玻璃白板）在東牆上的範圍（沿牆方向）
 
   lobby: {
     depth: 16,  // 方形空間南北深度（從 B 的北牆往北）— 估計（依草圖比例）

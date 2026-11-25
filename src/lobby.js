@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { box, mat, gridTexture, makeCollider } from './room.js';
 import { geo } from './layout.js';
-import { decal, brickTex, steelTex, callTex, hydrantTex, planTex, binTex } from './decals.js';
+import { decal, brickTex, steelTex, callTex, numTex, hydrantTex, planTex, binTex } from './decals.js';
 
 // 方形空間（草圖）：在走廊東側、B 北側；東牆有樓梯、一段牆、電梯 1、電梯 2；北牆是多功能展演廳；
 // 南側（B 的北牆）旁有兩個垃圾桶。西側是走廊與教室 C 的窗戶牆。
@@ -124,19 +124,31 @@ export function buildLobby(scene, colliders) {
   box(group, null, 3.4, H, 1.7, xL1 - 1.7, H / 2, zS + 6.6, { material: wallMat });
   colliders.push(makeCollider(xL1 - 3.4, xL1, zS + 5.75, zS + 7.45, 0, H, '突出牆'));
 
-  // 電梯 1、電梯 2（紅磚柱夾著兩部電梯門）
-  const zBr = zS + 12.15;
-  box(group, C.brick, 0.04, H, 4.4, xL1 - 0.02, H / 2, zBr);
-  decal(group, brickTex(), 4.4, H, xL1 - 0.043, H / 2, zBr, -Math.PI / 2, { repeat: [4.4 / 1.2, H / 1.2] });
-  for (const ze of [zS + 10.4, zS + 13.9]) {
-    box(group, C.stainless, 0.02, 2.1, 1.0, xL1 - 0.05, 1.05, ze);
-    // 電梯門上方的不鏽鋼罩（照片）
-    box(group, C.stainless, 0.2, 0.55, 1.2, xL1 - 0.1, 2.35, ze);
-    decal(group, steelTex(), 1.0, 2.1, xL1 - 0.063, 1.05, ze, -Math.PI / 2);
+  // 電梯牆（照片）：整面都是紅磚，只有兩台電梯、門框、門上不鏽鋼罩、呼叫面板與 4F 字樣
+  const zWallN = zS + 7.45, zWallS = z0 - 0.1;  // 紅磚牆：北端接突出牆，南端接 B 北牆
+  const zE1 = zS + 10.6, zE2 = zS + 13.85;       // 兩台電梯中心（照片：中心距約 3.25 m）
+  const dW = 1.3;                                 // 每台電梯的門開口寬
+  const lenBrick = zWallS - zWallN, zBrick = (zWallN + zWallS) / 2;
+  box(group, C.brick, 0.04, H, lenBrick, xL1 - 0.02, H / 2, zBrick);
+  decal(group, brickTex(), lenBrick, H, xL1 - 0.043, H / 2, zBrick, -Math.PI / 2, { repeat: [lenBrick / 1.2, H / 1.2] });
+  for (const ze of [zE1, zE2]) {
+    // 門框（左右不鏽鋼 jamb）
+    for (const dz of [-dW / 2 - 0.04, dW / 2 + 0.04]) {
+      box(group, C.stainless, 0.05, 2.15, 0.08, xL1 - 0.07, 1.08, ze + dz);
+      decal(group, numTex(), 0.12, 0.24, xL1 - 0.098, 1.5, ze + dz, -Math.PI / 2);
+    }
+    // 雙扇門板（中縫由貼皮畫出）
+    box(group, C.stainless, 0.02, 2.1, dW, xL1 - 0.065, 1.05, ze);
+    decal(group, steelTex(), dW, 2.1, xL1 - 0.078, 1.05, ze, -Math.PI / 2);
+    // 門上不鏽鋼罩
+    box(group, C.stainless, 0.3, 0.6, dW + 0.3, xL1 - 0.15, 2.6, ze);
+    decal(group, steelTex(), dW + 0.3, 0.6, xL1 - 0.302, 2.6, ze, -Math.PI / 2);
   }
-  text(['4F'], 0.6, 0.3, xL1 - 0.07, 2.3, zBr, -Math.PI / 2, '#2b8ea6');
-  box(group, C.stainless, 0.02, 0.9, 0.14, xL1 - 0.05, 1.2, zBr);
-  decal(group, callTex(), 0.14, 0.9, xL1 - 0.063, 1.2, zBr, -Math.PI / 2);
+  // 呼叫面板（兩台電梯之間）與 4F 字樣
+  const zBtn = (zE1 + zE2) / 2;
+  box(group, C.stainless, 0.02, 0.9, 0.2, xL1 - 0.05, 1.2, zBtn);
+  decal(group, callTex(), 0.2, 0.9, xL1 - 0.063, 1.2, zBtn, -Math.PI / 2);
+  text(['4F'], 0.6, 0.3, xL1 - 0.07, 2.3, zBtn, -Math.PI / 2, '#2b8ea6');
 
   // ---------- 白色柱子（照片：B 教室出來會看到的柱子，柱子後方是教室 C） ----------
   const colX = g.xE + 0.9, colZ = z0 - 0.75, colW = 0.7;

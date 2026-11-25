@@ -192,9 +192,9 @@ export function buildRoom(scene, opts = {}) {
   if (opts.boards) {
     // 五片玻璃白板（照片）：沿牆一字排開
     for (let k = 0; k < 5; k++) {
-      const bx = wbX0 + 0.4 + k * 1.0;
-      box(group, C.acrylic, 0.8, 0.8, 0.02, bx, 1.5, zMin + 0.03);
-      box(group, C.whiteboardFrame, 0.82, 0.82, 0.01, bx, 1.5, zMin + 0.025);
+      const bx = wbX0 + 0.35 + k * 0.8;
+      box(group, C.acrylic, 0.7, 0.8, 0.02, bx, 1.5, zMin + 0.03);
+      box(group, C.whiteboardFrame, 0.72, 0.82, 0.01, bx, 1.5, zMin + 0.025);
     }
   }
   // 投影布幕捲筒（收起狀態）
