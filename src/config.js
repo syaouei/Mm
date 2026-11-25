@@ -122,6 +122,12 @@ export const CONFIG = {
     switchPlate: '#f4f4f0',
     nameTeal: '#1f7a7a',
     downlight: '#f2f2f0',
+    lobbyFloor: '#4b4e53',
+    lobbyGrout: '#62666c',
+    diamond: '#c9cbcd',
+    benchWood: '#7a5536',
+    benchIron: '#2e2e30',
+    trash: '#c9cdd1',
   },
 
   lighting: {
@@ -159,6 +165,12 @@ export const CONFIG = {
     windowTop: 2.6,    // 窗戶上緣 — 估計
     lightSpacing: 3.0, // 天花板燈的間距 — 估計
     stripSpacing: 2.4, // 地板導引線的間距 — 估計
+  },
+
+  // 走廊前端（-z）外的方形大廳（照片：電梯、紅磚柱、樓梯、平面圖）
+  lobby: {
+    width: 10,  // x 方向 — 估計
+    depth: 10,  // z 方向（從走廊前端往外）— 估計
   },
 
   // 互動

@@ -150,9 +150,7 @@ export function buildCorridor(scene, colliders) {
   box(group, C.corridorSkirting, sd, sh, len, xW + sd / 2, sh / 2, zc);
 
   // ---------- 走廊兩端的牆 ----------
-  const zF = z0 - T / 2;
-  box(group, null, K.width, H, T, xc, H / 2, zF, { material: wallMat });
-  colliders.push(makeCollider(xW, xE, zF - T / 2, zF + T / 2, 0, H, '走廊端牆'));
+  // 前端（-z）沒有牆：開口通往方形大廳（lobby.js）
 
   // ---------- 後端（+z 盡頭）：窗戶加捲簾（照片：後門左手邊） ----------
   const zB = z1 + T / 2;

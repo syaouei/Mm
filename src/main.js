@@ -3,6 +3,7 @@ import { CONFIG } from './config.js';
 import { buildRoom } from './room.js';
 import { buildFurniture } from './furniture.js';
 import { buildCorridor } from './corridor.js';
+import { buildLobby } from './lobby.js';
 import { buildDoors } from './door.js';
 import { Player } from './player.js';
 import { Debug } from './debug.js';
@@ -30,6 +31,7 @@ const room2 = buildRoom(scene, { secondary: true, centerZ: c2 });
 const furniture2 = buildFurniture(scene, { centerZ: c2 });
 const colliders = [...room.colliders, ...furniture.colliders, ...room2.colliders, ...furniture2.colliders];
 buildCorridor(scene, colliders);
+buildLobby(scene, colliders);
 const doors = buildDoors(scene, colliders);
 
 // 靜態場景：陰影預設只算一次，門在動的時候才重算
