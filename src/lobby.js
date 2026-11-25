@@ -12,8 +12,10 @@ export function buildLobby(scene, colliders) {
   const H = room.height, T = room.wallThickness;
   const sd = room.skirtingDepth, sh = room.skirtingHeight;
   const { xW, xE, zS, z0, xL1 } = { ...g, xL1: g.xI + g.W };
-  const Wd = xL1 - xW, D = z0 - zS;
-  const xc = (xW + xL1) / 2, zc = (zS + z0) / 2;
+  // 多功能展演廳北牆往南移 2 m（照片與實景）：大廳北界改為 zN，其餘設備仍以 zS 為參考，位置不動
+  const zN = zS + 2;
+  const Wd = xL1 - xW, D = z0 - zN;
+  const xc = (xW + xL1) / 2, zc = (zN + z0) / 2;
   const group = new THREE.Group();
   group.name = 'lobby';
   scene.add(group);
@@ -62,7 +64,7 @@ export function buildLobby(scene, colliders) {
   floor.receiveShadow = true;
   group.add(floor);
   for (let x = xW + 0.9; x < xL1; x += 1.8) {
-    for (let z = zS + 0.9; z < z0; z += 1.8) {
+    for (let z = zN + 0.9; z < z0; z += 1.8) {
       box(group, C.diamond, 0.22, 0.004, 0.22, x, 0.002, z).rotation.y = Math.PI / 4;
     }
   }
@@ -78,7 +80,7 @@ export function buildLobby(scene, colliders) {
   ceil.position.set(xc, H, zc);
   group.add(ceil);
   for (let x = xW + 1.5; x < xL1; x += 3) {
-    for (let z = zS + 1.5; z < z0; z += 3) {
+    for (let z = zN + 1.5; z < z0; z += 3) {
       const dl = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.03, 20), mat(C.downlight));
       dl.position.set(x, H - 0.012, z);
       group.add(dl);
@@ -94,9 +96,9 @@ export function buildLobby(scene, colliders) {
   }
 
   // ---------- 北牆：多功能展演廳（與走廊相接處留開口） ----------
-  box(group, null, xL1 + T - xE, H, T, (xE + xL1 + T) / 2, H / 2, zS - T / 2, { material: wallMat });
-  colliders.push(makeCollider(xE, xL1 + T, zS - T, zS, 0, H, '展演廳北牆'));
-  text(['多功能展演廳', 'Auditorium'], 3.2, 1.4, (xE + xL1) / 2, 2.0, zS + 0.02, 0, C.signBlue);
+  box(group, null, xL1 + T - xE, H, T, (xE + xL1 + T) / 2, H / 2, zN - T / 2, { material: wallMat });
+  colliders.push(makeCollider(xE, xL1 + T, zN - T, zN, 0, H, '展演廳北牆'));
+  text(['多功能展演廳', 'Auditorium'], 3.2, 1.4, (xE + xL1) / 2, 2.0, zN + 0.02, 0, C.signBlue);
   // 消防栓櫃與 4F 平面圖看板（照片：在電梯旁的牆上）
   // 消防栓：貼在突出牆朝大廳的西面（電梯左手邊）
   const zHyd = zS + 8.85, xFaceW = xL1 - 2.4;   // 面與樓梯深度切齊
@@ -106,8 +108,8 @@ export function buildLobby(scene, colliders) {
 
   // ---------- 東牆：一段牆、樓梯、電梯 1、電梯 2 ----------
   box(group, null, T, H, D, xL1 + T / 2, H / 2, zc, { material: wallMat });
-  colliders.push(makeCollider(xL1, xL1 + T, zS, z0, 0, H, '大廳東牆'));
-  box(group, C.corridorSkirting, Wd, sh, sd, xc, sh / 2, zS + sd / 2);
+  colliders.push(makeCollider(xL1, xL1 + T, zN, z0, 0, H, '大廳東牆'));
+  box(group, C.corridorSkirting, Wd, sh, sd, xc, sh / 2, zN + sd / 2);
   box(group, C.corridorSkirting, sd, sh, D, xL1 - sd / 2, sh / 2, zc);
 
   // 樓梯（照片）：北側（左）往下、南側（右）往上
