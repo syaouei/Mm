@@ -309,3 +309,33 @@ export const stairsDownTex = () => texOf('stairsDown2', 256, 512, (g, w, h) => {
     g.fillRect(6, i * h / n + h / n - 5, w - 12, 3);
   }
 });
+
+// 茶水間標示（照片）：青色方塊＋金色咖啡杯圖示，下方灰色底板寫 Pantry
+export const pantrySignTex = () => texOf('pantrySign', 256, 320, (g, w, h) => {
+  g.fillStyle = '#e4e6e8';
+  g.fillRect(0, 0, w, h);
+  g.fillStyle = '#1f6f8b';
+  g.fillRect(12, 12, w - 24, 200);
+  g.fillStyle = '#d9b26a';
+  g.beginPath(); g.roundRect(78, 70, 84, 80, 6); g.fill();
+  g.beginPath(); g.arc(170, 110, 20, -Math.PI / 2, Math.PI / 2); g.lineWidth = 9; g.strokeStyle = '#d9b26a'; g.stroke();
+  g.fillRect(40, 150, 170, 10);
+  g.fillStyle = '#2b2f33';
+  txt(g, 'Pantry', w / 2, 262, 40, '#2b2f33', { bold: false });
+});
+
+// 茶水間牆面瓷磚（米灰色，60 cm 方格）與地面深灰方磚
+export const pantryWallTex = () => texOf('pantryWall', 256, 256, (g, w, h) => {
+  g.fillStyle = '#cfc7b6';
+  g.fillRect(0, 0, w, h);
+  g.strokeStyle = '#b3ab99';
+  g.lineWidth = 3;
+  g.strokeRect(0, 0, w, h);
+}, true);
+export const pantryFloorTex = () => texOf('pantryFloor', 256, 256, (g, w, h) => {
+  g.fillStyle = '#5f6367';
+  g.fillRect(0, 0, w, h);
+  g.strokeStyle = '#8a8f94';
+  g.lineWidth = 3;
+  g.strokeRect(0, 0, w, h);
+}, true);
