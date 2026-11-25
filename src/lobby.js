@@ -31,7 +31,13 @@ export function buildLobby(scene, colliders) {
     g.textBaseline = 'middle';
     const base = c.height / (lines.length * 1.5);
     lines.forEach((t, i) => {
-      g.font = `${i === 0 ? 'bold ' : ''}${Math.floor(i === 0 ? base : base * 0.55)}px "Noto Sans TC", "Microsoft JhengHei", sans-serif`;
+      let px = Math.floor(i === 0 ? base : base * 0.55);
+      const fam = '"Noto Sans TC", "Microsoft JhengHei", sans-serif';
+      g.font = `${i === 0 ? 'bold ' : ''}${px}px ${fam}`;
+      while (g.measureText(t).width > c.width * 0.92 && px > 8) {
+        px -= 2;
+        g.font = `${i === 0 ? 'bold ' : ''}${px}px ${fam}`;
+      }
       g.fillText(t, 256, (c.height / lines.length) * (i + 0.5));
     });
     const tex = new THREE.CanvasTexture(c);
@@ -130,13 +136,12 @@ export function buildLobby(scene, colliders) {
   box(group, C.stainless, 0.14, 0.9, 0.02, xc, 1.2, zS + 0.07);
   text(['多功能展演廳', 'Auditorium'], 2.2, 1.1, xc + 3.4, 2.0, zS + 0.02, 0, C.signBlue);
 
-  // ---------- 西牆：樓梯（往西牆升高）、消防栓箱、4F 平面圖 ----------
-  const zSt = zN - 2.5;
+  // ---------- 南牆西側：樓梯（與電梯同一面牆，往南牆升高） ----------
   for (let i = 0; i < 8; i++) {
     const hgt = (8 - i) * 0.18;
-    box(group, C.corridorWall, 0.3, hgt, 1.4, xL0 + i * 0.3 + 0.15, hgt / 2, zSt, { cast: true });
+    box(group, C.corridorWall, 1.4, hgt, 0.3, xL0 + 1.5, hgt / 2, zS + 0.15 + i * 0.3, { cast: true });
   }
-  colliders.push(makeCollider(xL0, xL0 + 2.4, zSt - 0.7, zSt + 0.7, 0, 1.44, '樓梯'));
+  colliders.push(makeCollider(xL0 + 0.8, xL0 + 2.2, zS, zS + 2.4, 0, 1.44, '樓梯'));
   const zHyd = zN - 0.9;
   box(group, C.hydrant, 0.2, 0.9, 0.9, xL0 + 0.1, 1.2, zHyd);
   box(group, C.hydrantRed, 0.08, 0.08, 0.6, xL0 + 0.21, 1.5, zHyd);
@@ -148,21 +153,23 @@ export function buildLobby(scene, colliders) {
   box(group, C.signBlue, 0.03, 1.3, 0.9, xL0 + 0.02, 1.5, zPl);
   text(['4F', '樓層平面圖'], 0.85, 1.25, xL0 + 0.04, 1.5, zPl, Math.PI / 2, '#ffffff');
 
-  // ---------- 東牆：五片告示板、K413 雙門（裝飾）、柱子與出口指示、垃圾桶 ----------
-  for (let k = 0; k < 5; k++) {
-    const bz = zS + 2.6 + k * 0.9;
-    box(group, C.acrylic, 0.012, 0.8, 0.7, xL1 - 0.006, 1.45, bz);
-    for (const dy of [-0.37, 0.37]) for (const dz of [-0.31, 0.31]) dot(xL1 - 0.014, 1.45 + dy, bz + dz);
+  // ---------- 北牆（與電梯、樓梯相對）：四片告示板（西段）、K413 雙門（東段）、 ----------
+  for (let k = 0; k < 4; k++) {
+    const bx = xL0 + 0.5 + k * 0.9;
+    box(group, C.acrylic, 0.7, 0.8, 0.012, bx, 1.45, zN - 0.006);
+    for (const dx of [-0.31, 0.31]) for (const dy of [-0.37, 0.37]) dot(bx + dx, 1.45 + dy, zN - 0.014);
   }
-  const dz0 = zS + 8.2 - 0.75, dz1 = zS + 8.2 + 0.75, fr = 0.06, dh = 2.1;
-  const dxF = xL1 - 0.015;
-  box(group, C.doorFrame, 0.03, dh + fr, fr, dxF, (dh + fr) / 2, dz0 - fr / 2);
-  box(group, C.doorFrame, 0.03, dh + fr, fr, dxF, (dh + fr) / 2, dz1 + fr / 2);
-  box(group, C.doorFrame, 0.03, fr, dz1 - dz0 + 2 * fr, dxF, dh + fr / 2, (dz0 + dz1) / 2);
-  box(group, C.door, 0.025, dh, (dz1 - dz0) / 2 - 0.005, xL1 - 0.03, dh / 2, dz0 + (dz1 - dz0) / 4);
-  box(group, C.door, 0.025, dh, (dz1 - dz0) / 2 - 0.005, xL1 - 0.03, dh / 2, dz0 + (3 * (dz1 - dz0)) / 4);
-  box(group, C.glassDark, 0.008, 0.4, 0.14, xL1 - 0.045, 1.45, (dz0 + dz1) / 2);
-  box(group, C.switchPlate, 0.012, 0.14, 0.36, xL1 - 0.014, 2.4, (dz0 + dz1) / 2);
+  const dx0 = xE + 0.1, dx1 = xE + 1.6, fr = 0.06, dh = 2.1;
+  const dzF = zN - 0.015;
+  box(group, C.doorFrame, dx1 - dx0 + 2 * fr, fr, 0.03, (dx0 + dx1) / 2, dh + fr / 2, dzF);
+  box(group, C.doorFrame, fr, dh + fr, 0.03, dx0 - fr / 2, (dh + fr) / 2, dzF);
+  box(group, C.doorFrame, fr, dh + fr, 0.03, dx1 + fr / 2, (dh + fr) / 2, dzF);
+  box(group, C.door, (dx1 - dx0) / 2 - 0.005, dh, 0.025, dx0 + (dx1 - dx0) / 4, dh / 2, dzF - 0.03);
+  box(group, C.door, (dx1 - dx0) / 2 - 0.005, dh, 0.025, dx0 + (3 * (dx1 - dx0)) / 4, dh / 2, dzF - 0.03);
+  box(group, C.glassDark, 0.14, 0.4, 0.008, (dx0 + dx1) / 2, 1.45, dzF - 0.045);
+  box(group, C.switchPlate, 0.36, 0.14, 0.012, dx1 + 0.2, 2.4, dzF - 0.01);
+  text(['K413 教室'], 0.6, 0.2, (dx0 + dx1) / 2, 2.4, dzF - 0.012, Math.PI, C.signBlue);
+
   const colX = xL1 - 0.9, colZ = zS + 6.5;
   box(group, null, 0.8, H, 0.8, colX, H / 2, colZ, { material: wallMat });
   colliders.push(makeCollider(colX - 0.4, colX + 0.4, colZ - 0.4, colZ + 0.4, 0, H, '大廳柱子'));
@@ -172,14 +179,14 @@ export function buildLobby(scene, colliders) {
   box(group, C.trash, 0.7, 1.0, 0.7, xL1 - 0.6, 0.5, trashZ);
   colliders.push(makeCollider(xL1 - 0.95, xL1 - 0.25, trashZ - 0.35, trashZ + 0.35, 0, 1.0, '垃圾桶'));
 
-  // ---------- 南牆西側：木頭長椅（鐵腳） ----------
-  const bx = xL0 + 2.0, bz = zS + 0.7;
-  box(group, C.benchWood, 1.6, 0.06, 0.5, bx, 0.46, bz);
-  box(group, C.benchWood, 1.6, 0.4, 0.05, bx, 0.7, bz - 0.22);
-  for (const sx of [-0.7, 0.7]) {
-    box(group, C.benchIron, 0.05, 0.46, 0.5, bx + sx, 0.23, bz);
+  // ---------- 西牆：木頭長椅（鐵腳） ----------
+  const bx = xL0 + 0.45, bz = zS + 7.0;
+  box(group, C.benchWood, 0.5, 0.06, 1.6, bx, 0.46, bz);
+  box(group, C.benchWood, 0.05, 0.4, 1.6, bx - 0.22, 0.7, bz);
+  for (const sz of [-0.7, 0.7]) {
+    box(group, C.benchIron, 0.5, 0.46, 0.05, bx, 0.23, bz + sz);
   }
-  colliders.push(makeCollider(bx - 0.8, bx + 0.8, bz - 0.25, bz + 0.25, 0, 0.5, '長椅'));
+  colliders.push(makeCollider(bx - 0.25, bx + 0.25, bz - 0.8, bz + 0.8, 0, 0.5, '長椅'));
 
   // ---------- 北牆前的teal 指示牌（掛在走廊口上方） ----------
   box(group, C.sign, K.width * 0.9, 0.35, 0.05, xc, 2.45, z0 - T / 2 + 0.02);
