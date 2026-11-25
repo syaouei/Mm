@@ -12,17 +12,16 @@ export function doorSpans() {
   const L = room.length;
   const fz0 = -L / 2 + doors.front.distFromFrontWall, fw = doors.front.width;
   const bz0 = L / 2 - doors.back.distFromBackWall - doors.back.width, bw = doors.back.width;
-  const mirror = (a, b) => ({ z0: g.c2 - b, z1: g.c2 - a });        // B（沿 z 鏡像）
-  const shift = (a, b) => ({ z0: g.czC + a, z1: g.czC + b });        // C（不鏡像 z）
+  const mirror = (a, b) => ({ z0: g.c2 - b, z1: g.c2 - a }); // B（沿 z 鏡像）
   const bm = mirror(bz0, bz0 + bw), fm = mirror(fz0, fz0 + fw);
-  const bc = shift(bz0, bz0 + bw), fc = shift(fz0, fz0 + fw);
+  const cz = g.czC; // C 為正方形、旋轉後門在朝走廊的東牆上（白板也在這面）
   return [
     { name: '教室A前門', z0: fz0, z1: fz0 + fw, double: true, inward: false, xOuter: g.xE, roomDir: 1, plate: 'K416 教室' },
     { name: '教室A後門', z0: bz0, z1: bz0 + bw, double: false, inward: true, hinge: 'z1', xOuter: g.xE, roomDir: 1 },
     { name: '教室B前門', ...fm, double: true, inward: false, xOuter: g.xE, roomDir: 1 },
     { name: '教室B後門', ...bm, double: false, inward: true, hinge: 'z0', xOuter: g.xE, roomDir: 1 },
-    { name: '教室C前門（K413）', ...fc, double: true, inward: false, xOuter: g.xW, roomDir: -1, plate: 'K413 教室' },
-    { name: '教室C後門', ...bc, double: false, inward: true, hinge: 'z1', xOuter: g.xW, roomDir: -1 },
+    { name: '教室C前門（K413）', z0: cz - 3.6, z1: cz - 2.1, double: true, inward: false, xOuter: g.xW, roomDir: -1, plate: 'K413 教室' },
+    { name: '教室C後門', z0: cz + 2.8, z1: cz + 3.7, double: false, inward: true, hinge: 'z1', xOuter: g.xW, roomDir: -1 },
   ];
 }
 

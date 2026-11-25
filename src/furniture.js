@@ -54,9 +54,8 @@ function chairBackGeometry(width, height, thickness) {
 }
 
 // 計算每組課桌椅的中心位置（桌子中心）
-export function computeLayout() {
-  const { room, layout, desk } = CONFIG;
-  const W = room.width, L = room.length;
+export function computeLayout(W = CONFIG.room.width, L = CONFIG.room.length, layout = CONFIG.layout) {
+  const { desk } = CONFIG;
   const n = layout.colsPerSide;
   const inner = W - 2 * layout.sideAisle - layout.centerAisle;
   let colGap = n > 1 ? (inner - 2 * n * desk.width) / (2 * (n - 1)) : 0;
@@ -95,7 +94,7 @@ export function buildFurniture(scene, opts = {}) {
     back: new Batch(chairBackGeometry(1, 1, 1), std(C.chair, { roughness: 0.5 })),
   };
 
-  const { xs, zs } = computeLayout();
+  const { xs, zs } = computeLayout(opts.size?.width, opts.size?.length, opts.layout || layout);
   const rand = mulberry32(layout.seed);
   const colliders = [];
   const legH = D.height - D.topThickness;

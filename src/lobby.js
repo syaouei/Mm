@@ -108,23 +108,23 @@ export function buildLobby(scene, colliders) {
   box(group, C.corridorSkirting, Wd, sh, sd, xc, sh / 2, zS + sd / 2);
   box(group, C.corridorSkirting, sd, sh, D, xL1 - sd / 2, sh / 2, zc);
 
-  // 樓梯（靠東牆，往牆面升高）
+  // 樓梯（草圖：東牆北段，沿東牆方向寬 2.4 m，往牆面升高）
   const zSt = zS + 3.6;
   for (let i = 0; i < 8; i++) {
     const hgt = (8 - i) * 0.18;
-    box(group, C.corridorWall, 0.3, hgt, 1.4, xL1 - 0.15 - i * 0.3, hgt / 2, zSt, { cast: true });
+    box(group, C.corridorWall, 0.3, hgt, 2.4, xL1 - 0.15 - i * 0.3, hgt / 2, zSt, { cast: true });
   }
-  colliders.push(makeCollider(xL1 - 2.4, xL1, zSt - 0.7, zSt + 0.7, 0, 1.44, '樓梯'));
+  colliders.push(makeCollider(xL1 - 2.4, xL1, zSt - 1.2, zSt + 1.2, 0, 1.44, '樓梯'));
 
-  // 一段突出的牆
-  box(group, null, 1.2, H, 1.4, xL1 - 0.6, H / 2, zS + 6.5, { material: wallMat });
-  colliders.push(makeCollider(xL1 - 1.2, xL1, zS + 5.8, zS + 7.2, 0, H, '突出牆'));
+  // 突出的牆（草圖：東牆中段，深 3.4 m、寬 1.7 m）
+  box(group, null, 3.4, H, 1.7, xL1 - 1.7, H / 2, zS + 6.6, { material: wallMat });
+  colliders.push(makeCollider(xL1 - 3.4, xL1, zS + 5.75, zS + 7.45, 0, H, '突出牆'));
 
   // 電梯 1、電梯 2（紅磚柱夾著兩部電梯門）
-  const zBr = zS + 12.2;
+  const zBr = zS + 12.15;
   box(group, C.brick, 0.04, H, 4.4, xL1 - 0.02, H / 2, zBr);
   decal(group, brickTex(), 4.4, H, xL1 - 0.043, H / 2, zBr, -Math.PI / 2, { repeat: [4.4 / 1.2, H / 1.2] });
-  for (const ze of [zS + 11.2, zS + 13.2]) {
+  for (const ze of [zS + 10.4, zS + 13.9]) {
     box(group, C.stainless, 0.02, 2.1, 1.0, xL1 - 0.05, 1.05, ze);
     decal(group, steelTex(), 1.0, 2.1, xL1 - 0.063, 1.05, ze, -Math.PI / 2);
   }
@@ -133,7 +133,7 @@ export function buildLobby(scene, colliders) {
   decal(group, callTex(), 0.14, 0.9, xL1 - 0.063, 1.2, zBr, -Math.PI / 2);
 
   // ---------- 南側（B 的北牆旁）：兩個垃圾桶 ----------
-  for (const tx of [xW + 6.5, xW + 7.8]) {
+  for (const tx of [g.xI + 2.0, g.xI + 3.1]) {
     box(group, C.trash, 0.9, 1.0, 0.8, tx, 0.5, z0 - 0.6);
     decal(group, binTex(), 0.9, 1.0, tx, 0.5, z0 - 1.005, Math.PI);
     colliders.push(makeCollider(tx - 0.45, tx + 0.45, z0 - 1.0, z0 - 0.2, 0, 1.0, '垃圾桶'));

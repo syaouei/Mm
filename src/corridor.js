@@ -35,7 +35,7 @@ export function buildCorridor(scene, colliders) {
   const spans = doorSpans();
   const eastHoles = spans.filter((s) => s.xOuter === xE).map((s) => [s.z0 - f, s.z1 + f]).sort((p, q) => p[0] - q[0]);
   const winHoles = spans.filter((s) => s.xOuter === xW).map((s) => [s.z0 - f, s.z1 + f]).sort((p, q) => p[0] - q[0]);
-  const cA = zS + Lb.cRoomZ, cB = cA + L; // 教室 C 的 z 範圍
+  const cA = g.czC - CONFIG.roomC.length / 2, cB = g.czC + CONFIG.roomC.length / 2; // 教室 C 的 z 範圍
 
   // ---------- 地板：深灰磚 + 淺色導引線 ----------
   const floorTex = gridTexture(C.corridorFloor, C.corridorGrout, 128, 3);

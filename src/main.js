@@ -32,10 +32,10 @@ const furnA = buildFurniture(scene);
 const placeB = { cz: g.c2, sz: -1 };
 const roomB = buildRoom(scene, { secondary: true, place: placeB });
 const furnB = buildFurniture(scene, { place: placeB });
-// 教室 C：走廊西側，沿 x 鏡像（門朝東，朝方形空間與走廊）
-const placeC = { cx: g.cxC, cz: g.czC, sx: -1 };
-const roomC = buildRoom(scene, { secondary: true, place: placeC });
-const furnC = buildFurniture(scene, { place: placeC });
+// 教室 C：走廊西側，正方形，旋轉使白板與門都在朝走廊的東牆
+const placeC = { cx: g.cxC, cz: g.czC, rot: -Math.PI / 2 };
+const roomC = buildRoom(scene, { secondary: true, minimal: true, noFrontWall: true, size: CONFIG.roomC, wb: CONFIG.wallC, lecX: 0.4, place: placeC });
+const furnC = buildFurniture(scene, { place: placeC, size: CONFIG.roomC, layout: { ...CONFIG.layout, ...CONFIG.layoutC } });
 
 const colliders = [
   ...roomA.colliders, ...furnA.colliders,

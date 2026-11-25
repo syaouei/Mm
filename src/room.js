@@ -6,15 +6,18 @@ export function makeCollider(minX, maxX, minZ, maxZ, minY, maxY, label) {
   return { minX, maxX, minZ, maxZ, minY, maxY, label };
 }
 
-// 放置房間：以 (cx, cz) 為中心，sx / sz = -1 表示沿該軸鏡像（格局相反）。同時把碰撞框一起轉換
-export function placeRoom(group, colliders, { cx = 0, cz = 0, sx = 1, sz = 1 }) {
+// 放置房間：先沿 z 鏡像（sz = -1 表示格局相反），再繞 y 軸旋轉 rot，最後平移到 (cx, cz)。
+// 碰撞框（AABB）同步轉換；rot 只用 0 或 ±π/2，轉完仍是軸對齊的 AABB
+export function placeRoom(group, colliders, { cx = 0, cz = 0, rot = 0, sz = 1 }) {
   group.position.set(cx, 0, cz);
-  group.scale.set(sx, 1, sz);
-  for (const c of colliders) {
-    const xa = cx + sx * c.minX, xb = cx + sx * c.maxX;
-    const za = cz + sz * c.minZ, zb = cz + sz * c.maxZ;
-    c.minX = Math.min(xa, xb); c.maxX = Math.max(xa, xb);
-    c.minZ = Math.min(za, zb); c.maxZ = Math.max(za, zb);
+  group.rotation.y = rot;
+  group.scale.set(1, 1, sz);
+  const c = Math.cos(rot), s = Math.sin(rot);
+  const tr = (x, z) => { const zz = sz * z; return [cx + x * c + zz * s, cz - x * s + zz * c]; };
+  for (const k of colliders) {
+    const pts = [tr(k.minX, k.minZ), tr(k.minX, k.maxZ), tr(k.maxX, k.minZ), tr(k.maxX, k.maxZ)];
+    k.minX = Math.min(...pts.map((p) => p[0])); k.maxX = Math.max(...pts.map((p) => p[0]));
+    k.minZ = Math.min(...pts.map((p) => p[1])); k.maxZ = Math.max(...pts.map((p) => p[1]));
   }
 }
 
@@ -59,7 +62,7 @@ export function gridTexture(fill, line, px = 128, lineWidth = 3) {
 
 export function buildRoom(scene, opts = {}) {
   const { room, pillar, doors, colors: C, lighting } = CONFIG;
-  const W = room.width, L = room.length, H = room.height, T = room.wallThickness;
+  const W = opts.size?.width ?? room.width, L = opts.size?.length ?? room.length, H = room.height, T = room.wallThickness;
   const xMin = -W / 2, xMax = W / 2, zMin = -L / 2, zMax = L / 2;
   const group = new THREE.Group();
   group.name = 'room';
@@ -97,6 +100,7 @@ export function buildRoom(scene, opts = {}) {
     [T, L, xMax + T / 2, 0, '窗側牆'],
   ];
   for (const [sx, sz, cx, cz, label] of walls) {
+    if (opts.noFrontWall && label === '前牆') continue; // C 的牆由走廊那段負責（有門洞）
     box(group, null, sx, H, sz, cx, H / 2, cz, { material: wallMat });
     colliders.push(makeCollider(cx - sx / 2, cx + sx / 2, cz - sz / 2, cz + sz / 2, 0, H, label));
   }
@@ -155,7 +159,7 @@ export function buildRoom(scene, opts = {}) {
   // ---------- 踢腳板（避開門與柱子） ----------
   const sh = room.skirtingHeight, sd = room.skirtingDepth;
   const skirt = (sx, sz, cx, cz) => box(group, C.skirting, sx, sh, sz, cx, sh / 2, cz);
-  skirt(W, sd, 0, zMin + sd / 2); // 前牆
+  if (!opts.noFrontWall) skirt(W, sd, 0, zMin + sd / 2); // 前牆
   // 後牆（柱子左右兩段 + 柱子三面）
   skirt(pMinX - xMin, sd, (xMin + pMinX) / 2, zMax - sd / 2);
   skirt(xMax - pMaxX, sd, (pMaxX + xMax) / 2, zMax - sd / 2);
@@ -172,14 +176,16 @@ export function buildRoom(scene, opts = {}) {
   for (const [a, b] of segs) if (b > a) skirt(sd, b - a, xMin + sd / 2, (a + b) / 2);
 
   // ---------- 前牆：白板、布幕捲筒、白板燈、講桌、喇叭 ----------
-  const wbX0 = -5.0, wbX1 = 3.0; // 白板左右範圍 — 估計
+  const [wbX0, wbX1] = opts.wb ?? [-5.0, 3.0]; // 白板左右範圍 — 估計
   const wbW = wbX1 - wbX0, wbCx = (wbX0 + wbX1) / 2;
   box(group, C.whiteboardFrame, wbW + 0.06, 1.26, 0.03, wbCx, 1.53, zMin + 0.015);
   box(group, null, wbW, 1.2, 0.035, wbCx, 1.53, zMin + 0.02, { material: mat(C.whiteboard, { roughness: 0.3 }) });
   box(group, C.whiteboardFrame, wbW, 0.03, 0.07, wbCx, 0.9, zMin + 0.04); // 筆槽
   // 投影布幕捲筒（收起狀態）
+  if (!opts.minimal) {
   box(group, '#f0f0ee', 3.0, 0.08, 0.08, -2.0, H - 0.18, zMin + 0.05);
   box(group, '#f0f0ee', 3.0, 0.08, 0.08, 2.4, H - 0.18, zMin + 0.05);
+  }
   // 白板照明燈（吊在前方）
   for (const x of [-2.6, 0.2]) {
     box(group, C.fixture, 1.2, 0.08, 0.14, x, H - 0.45, zMin + 0.5);
@@ -187,16 +193,19 @@ export function buildRoom(scene, opts = {}) {
     box(group, C.metal, 0.015, 0.37, 0.015, x + 0.45, H - 0.22, zMin + 0.5);
   }
   // 講桌（木紋色正面 + 灰色桌面 + 側邊小桌）
-  const lecX = 0.6, lecZ = zMin + 0.75;
+  const lecX = opts.lecX ?? 0.6, lecZ = zMin + 0.75;
   box(group, C.lectern, 0.9, 1.0, 0.55, lecX, 0.5, lecZ, { cast: true });
   box(group, '#5c5f63', 0.92, 0.04, 0.58, lecX, 1.02, lecZ, { cast: true });
   box(group, '#e9e9e6', 0.6, 0.03, 0.35, lecX + 0.75, 0.95, lecZ - 0.05, { cast: true });
   box(group, C.metal, 0.03, 0.95, 0.03, lecX + 0.95, 0.475, lecZ - 0.05);
   colliders.push(makeCollider(lecX - 0.45, lecX + 1.05, lecZ - 0.29, lecZ + 0.29, 0, 1.05, '講桌'));
   // 前牆喇叭
+  if (!opts.minimal) {
   buildSpeaker(group, -4.0, 2.4, zMin + 0.08, 0, '#202022');
   buildSpeaker(group, 1.3, 2.45, zMin + 0.08, 0, C.speaker);
+  }
 
+  if (!opts.minimal) {
   // ---------- 後牆：PTZ 攝影機、左右喇叭 ----------
   const camX = 0.0; // 柱子左側（面向後牆時）
   box(group, C.camera, 0.06, 0.03, 0.22, camX, 2.18, zMax - 0.11); // 支架
@@ -222,8 +231,10 @@ export function buildRoom(scene, opts = {}) {
     box(group, '#2d3338', 0.015, blindTop - blindBottom, 0.012, xMax - 0.04, (blindTop + blindBottom) / 2, bz0 + bw * i + 0.01); // 拉繩軌
   }
 
+  }
+
   // ---------- 天花板設備 ----------
-  const lights = buildCeiling(group, W, L, H);
+  const lights = buildCeiling(group, W, L, H, !opts.minimal);
 
   // ---------- 光源（只有主教室建立；隔壁教室共用光源） ----------
   if (!opts.secondary) {
@@ -266,7 +277,7 @@ function buildSpeaker(parent, x, y, z, rotY, color) {
 }
 
 // 天花板：燈管、冷氣出風口、吊扇格柵、圓形喇叭、煙霧偵測器、投影機
-function buildCeiling(group, W, L, H) {
+function buildCeiling(group, W, L, H, withProjectors = true) {
   const { lighting, colors: C } = CONFIG;
   const lightMat = new THREE.MeshStandardMaterial({
     color: C.lightPanel, emissive: '#ffffff', emissiveIntensity: 1.0, roughness: 0.4,
@@ -317,7 +328,7 @@ function buildCeiling(group, W, L, H) {
   group.add(smoke);
 
   // 投影機（兩台，對著前牆布幕）
-  for (const x of [-2.0, 2.4]) {
+  for (const x of withProjectors ? [-2.0, 2.4] : []) {
     const z = -L / 2 + 4.3;
     box(group, C.metal, 0.04, 0.3, 0.04, x, H - 0.15, z); // 吊桿
     box(group, '#2a2a2a', 0.12, 0.04, 0.12, x, H - 0.31, z);

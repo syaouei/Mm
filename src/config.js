@@ -169,9 +169,13 @@ export const CONFIG = {
   },
 
   // 走廊前端（-z）外的方形大廳（照片：電梯、紅磚柱、樓梯、平面圖）
+  // 教室 C：正方形，比 A、B 小；白板與 K413 門都在朝走廊的東牆
+  roomC: { width: 8, length: 8 },
+  layoutC: { colsPerSide: 2, rows: 4, frontGap: 2.2, rowPitch: 1.1 },
+  wallC: [-1.4, 2.2],   // C 白板在東牆上的範圍（沿牆方向）
+
   lobby: {
     depth: 16,  // 方形空間南北深度（從 B 的北牆往北）— 估計（依草圖比例）
-    cRoomZ: 1.5, // 教室 C 的北牆離方形空間北牆的距離 — 估計
   },
 
   // 互動

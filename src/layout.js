@@ -2,9 +2,9 @@ import { CONFIG } from './config.js';
 
 // 整層平面的關鍵座標（公尺）。x 向東、z 向南；-z 為北。
 // 走廊南北向（x ∈ [xW, xE]）；A 為原本的主教室（走廊東側，中段）；B 在 A 北側（鏡像）；
-// 方形空間在 B 北側、橫跨走廊到東牆；C 在走廊西側（鏡像），位於方形空間的西側。
+// 方形空間在 B 北側、橫跨走廊到東牆；C 為走廊西側的正方形教室，北邊與方形空間北界對齊。
 export function geo() {
-  const { room, corridor: K, lobby: Lb } = CONFIG;
+  const { room, corridor: K, lobby: Lb, roomC } = CONFIG;
   const W = room.width, L = room.length, T = room.wallThickness;
   const xI = -W / 2;                  // A、B 的走廊側內面
   const xE = xI - T;                  // 走廊東牆的走廊側面
@@ -15,7 +15,7 @@ export function geo() {
   const zNend = zS - K.northExtend;   // 走廊北端
   const z1 = L / 2 + K.backExtend;    // 走廊南端
   const c2 = -(L + T);                // B 的中心 z（鏡像）
-  const czC = zS + Lb.cRoomZ + L / 2; // C 的中心 z
-  const cxC = xW - T - W / 2;         // C 的中心 x（鏡像，位於走廊西側）
+  const czC = zS + roomC.length / 2;  // C 的中心 z
+  const cxC = xW - T - roomC.width / 2; // C 的中心 x（旋轉後，前牆朝東）
   return { W, L, T, xI, xE, xW, xL1, z0, zS, zNend, z1, c2, czC, cxC };
 }
