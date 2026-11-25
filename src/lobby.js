@@ -125,9 +125,10 @@ export function buildLobby(scene, colliders) {
   colliders.push(makeCollider(xL1 - 3.4, xL1, zS + 5.75, zS + 7.45, 0, H, '突出牆'));
 
   // 電梯牆（照片）：整面都是紅磚，只有兩台電梯、門框、門上不鏽鋼罩、呼叫面板與 4F 字樣
-  const zWallN = zS + 7.45, zWallS = z0 - 0.1;  // 紅磚牆：北端接突出牆，南端接 B 北牆
   const zE1 = zS + 10.6, zE2 = zS + 13.85;       // 兩台電梯中心（照片：中心距約 3.25 m）
   const dW = 1.3;                                 // 每台電梯的門開口寬
+  // 紅磚只包住電梯區：左側砖柱約 0.4 m、右側約 0.8 m（照片比例）
+  const zWallN = zE1 - dW / 2 - 0.4, zWallS = zE2 + dW / 2 + 0.8;
   const lenBrick = zWallS - zWallN, zBrick = (zWallN + zWallS) / 2;
   box(group, C.brick, 0.04, H, lenBrick, xL1 - 0.02, H / 2, zBrick);
   decal(group, brickTex(), lenBrick, H, xL1 - 0.043, H / 2, zBrick, -Math.PI / 2, { repeat: [lenBrick / 1.2, H / 1.2] });
