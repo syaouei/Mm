@@ -15,7 +15,7 @@ export function geo() {
   const zNend = zS - K.northExtend;   // 走廊北端
   const z1 = L / 2 + K.backExtend;    // 走廊南端
   const c2 = -(L + T);                // B 的中心 z（鏡像）
-  const czC = zS + roomC.length / 2;  // C 的中心 z
+  const czC = zS + roomC.offsetZ + roomC.length / 2;  // C 的中心 z（離 B 較近）
   const cxC = xW - T - roomC.width / 2; // C 的中心 x（旋轉後，前牆朝東）
   return { W, L, T, xI, xE, xW, xL1, z0, zS, zNend, z1, c2, czC, cxC };
 }

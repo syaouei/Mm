@@ -98,12 +98,13 @@ export function buildLobby(scene, colliders) {
   colliders.push(makeCollider(xE, xL1 + T, zS - T, zS, 0, H, '展演廳北牆'));
   text(['多功能展演廳', 'Auditorium'], 3.2, 1.4, (xE + xL1) / 2, 2.0, zS + 0.02, 0, C.signBlue);
   // 消防栓櫃與 4F 平面圖看板（照片：在電梯旁的牆上）
-  // 電梯左手邊：東牆在電梯 1 北側的那段（z 約 zS+7.55 ~ zS+9.85），面向大廳（朝西，-x）
-  const zHyd = zS + 8.0, zPlan = zS + 9.3, xFace = xL1;
-  box(group, C.hydrant, 0.2, 1.2, 0.9, xFace - 0.1, 1.2, zHyd);
-  decal(group, hydrantTex(), 0.9, 1.2, xFace - 0.205, 1.2, zHyd, -Math.PI / 2);
-  decal(group, planTex(), 0.9, 1.3, xFace - 0.005, 1.55, zPlan, -Math.PI / 2);
-  colliders.push(makeCollider(xFace - 0.2, xFace, zHyd - 0.45, zHyd + 0.45, 0, 1.65, '消防栓箱'));
+  // 電梯左手邊的突出牆：面向電梯的南面（z = zS+7.45），朝南（+z）。消防栓與平面圖都貼在這面
+  const zFace = zS + 7.45;
+  const xHyd = xL1 - 2.5, xPlan = xL1 - 1.1;
+  box(group, C.hydrant, 0.9, 1.2, 0.2, xHyd, 1.2, zFace + 0.1);
+  decal(group, hydrantTex(), 0.9, 1.2, xHyd, 1.2, zFace + 0.205, 0);
+  decal(group, planTex(), 0.9, 1.3, xPlan, 1.55, zFace + 0.005, 0);
+  colliders.push(makeCollider(xHyd - 0.45, xHyd + 0.45, zFace, zFace + 0.2, 0, 1.65, '消防栓箱'));
 
   // ---------- 東牆：一段牆、樓梯、電梯 1、電梯 2 ----------
   box(group, null, T, H, D, xL1 + T / 2, H / 2, zc, { material: wallMat });
@@ -129,9 +130,11 @@ export function buildLobby(scene, colliders) {
   decal(group, brickTex(), 4.4, H, xL1 - 0.043, H / 2, zBr, -Math.PI / 2, { repeat: [4.4 / 1.2, H / 1.2] });
   for (const ze of [zS + 10.4, zS + 13.9]) {
     box(group, C.stainless, 0.02, 2.1, 1.0, xL1 - 0.05, 1.05, ze);
+    // 電梯門上方的不鏽鋼罩（照片）
+    box(group, C.stainless, 0.2, 0.55, 1.2, xL1 - 0.1, 2.35, ze);
     decal(group, steelTex(), 1.0, 2.1, xL1 - 0.063, 1.05, ze, -Math.PI / 2);
   }
-  text(['4F'], 0.6, 0.3, xL1 - 0.07, 2.3, zBr, -Math.PI / 2, C.signBlue);
+  text(['4F'], 0.6, 0.3, xL1 - 0.07, 2.3, zBr, -Math.PI / 2, '#2b8ea6');
   box(group, C.stainless, 0.02, 0.9, 0.14, xL1 - 0.05, 1.2, zBr);
   decal(group, callTex(), 0.14, 0.9, xL1 - 0.063, 1.2, zBr, -Math.PI / 2);
 

@@ -58,7 +58,7 @@ export const brickTex = () => texOf('brick', 512, 512, (g, w, h) => {
     const off = (row % 2) * bw / 2;
     for (let i = -1; i < 5; i++) {
       const grey = r() < 0.25;
-      g.fillStyle = grey ? ['#6f716b', '#7b7d76'][Math.floor(r() * 2)] : ['#a4533f', '#b35f48', '#98493a'][Math.floor(r() * 3)];
+      g.fillStyle = grey ? ['#8f918a', '#9ea097', '#7d8078'][Math.floor(r() * 3)] : ['#c4664c', '#d07a5c', '#b65a43'][Math.floor(r() * 3)];
       g.fillRect(off + i * bw + 1.5, row * rh + 1.5, bw - 3, rh - 3);
     }
   }
@@ -94,6 +94,9 @@ export const steelTex = () => texOf('steel', 256, 512, (g, w, h) => {
     g.fillStyle = r() < 0.5 ? 'rgba(255,255,255,0.12)' : 'rgba(60,64,70,0.08)';
     g.fillRect(0, r() * h, w, 0.6 + r());
   }
+  // 雙扇門的中縫
+  g.fillStyle = 'rgba(40,44,50,0.85)';
+  g.fillRect(w / 2 - 2, 0, 4, h);
 });
 
 // 電梯呼叫面板（不鏽鋼，上下箭頭，無障礙標誌，上方樓層顯示）
