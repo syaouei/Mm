@@ -12,8 +12,8 @@ export function buildLobby(scene, colliders) {
   const H = room.height, T = room.wallThickness;
   const sd = room.skirtingDepth, sh = room.skirtingHeight;
   const { xW, xE, zS, z0, xL1 } = { ...g, xL1: g.xI + g.W };
-  // 多功能展演廳北牆往南移 2 m（照片與實景）：大廳北界改為 zN，其餘設備仍以 zS 為參考，位置不動
-  const zN = zS + 2;
+  // 多功能展演廳北牆：移到下行樓梯北緣（zN = zS + 4.7）；樓梯、電梯、消防栓仍以 zS 為參考，位置不動
+  const zN = zS + 4.7;  // 北牆貼齊下行樓梯的北緣；樓梯不動
   const Wd = xL1 - xW, D = z0 - zN;
   const xc = (xW + xL1) / 2, zc = (zN + z0) / 2;
   const group = new THREE.Group();
