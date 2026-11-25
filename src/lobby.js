@@ -99,7 +99,7 @@ export function buildLobby(scene, colliders) {
   text(['多功能展演廳', 'Auditorium'], 3.2, 1.4, (xE + xL1) / 2, 2.0, zS + 0.02, 0, C.signBlue);
   // 消防栓櫃與 4F 平面圖看板（照片：在電梯旁的牆上）
   // 電梯左手邊的突出牆：面向電梯的南面（z = zS+7.45），朝南（+z）。消防栓與平面圖都貼在這面
-  const zFace = zS + 7.45;
+  const zFace = zS + 8.4;
   const xHyd = xL1 - 2.5, xPlan = xL1 - 1.1;
   box(group, C.hydrant, 0.9, 1.2, 0.2, xHyd, 1.2, zFace + 0.1);
   decal(group, hydrantTex(), 0.9, 1.2, xHyd, 1.2, zFace + 0.205, 0);
@@ -113,16 +113,16 @@ export function buildLobby(scene, colliders) {
   box(group, C.corridorSkirting, sd, sh, D, xL1 - sd / 2, sh / 2, zc);
 
   // 樓梯（草圖：東牆北段，沿東牆方向寬 2.4 m，往牆面升高）
-  const zSt = zS + 3.6;
+  const zSt = zS + 4.2;
   for (let i = 0; i < 8; i++) {
     const hgt = (8 - i) * 0.18;
-    box(group, C.corridorWall, 0.3, hgt, 2.4, xL1 - 0.15 - i * 0.3, hgt / 2, zSt, { cast: true });
+    box(group, C.corridorWall, 0.3, hgt, 1.6, xL1 - 0.15 - i * 0.3, hgt / 2, zSt, { cast: true });
   }
-  colliders.push(makeCollider(xL1 - 2.4, xL1, zSt - 1.2, zSt + 1.2, 0, 1.44, '樓梯'));
+  colliders.push(makeCollider(xL1 - 2.4, xL1, zSt - 0.8, zSt + 0.8, 0, 1.44, '樓梯'));
 
   // 突出的牆（草圖：東牆中段，深 3.4 m、寬 1.7 m）
-  box(group, null, 3.4, H, 1.7, xL1 - 1.7, H / 2, zS + 6.6, { material: wallMat });
-  colliders.push(makeCollider(xL1 - 3.4, xL1, zS + 5.75, zS + 7.45, 0, H, '突出牆'));
+  box(group, null, 3.4, H, 3.0, xL1 - 1.7, H / 2, zS + 6.9, { material: wallMat });
+  colliders.push(makeCollider(xL1 - 3.4, xL1, zS + 5.4, zS + 8.4, 0, H, '突出牆'));
 
   // 電梯牆（照片）：整面都是紅磚，只有兩台電梯、門框、門上不鏽鋼罩、呼叫面板與 4F 字樣
   const zE1 = zS + 10.6, zE2 = zS + 13.85;       // 兩台電梯中心（照片：中心距約 3.25 m）
