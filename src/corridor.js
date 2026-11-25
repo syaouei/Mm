@@ -150,25 +150,38 @@ export function buildCorridor(scene, colliders) {
   box(group, C.corridorSkirting, sd, sh, len, xW + sd / 2, sh / 2, zc);
 
   // ---------- 走廊兩端的牆 ----------
-  for (const zz of [z0 - T / 2, z1 + T / 2]) {
-    box(group, null, K.width, H, T, xc, H / 2, zz, { material: wallMat });
-    colliders.push(makeCollider(xW, xE, zz - T / 2, zz + T / 2, 0, H, '走廊端牆'));
-  }
+  const zF = z0 - T / 2;
+  box(group, null, K.width, H, T, xc, H / 2, zF, { material: wallMat });
+  colliders.push(makeCollider(xW, xE, zF - T / 2, zF + T / 2, 0, H, '走廊端牆'));
 
-  // ---------- 電梯端（+z 盡頭）：兩部電梯、中間紅磚柱、樓層牌 ----------
-  const zE = z1 - 0.012;
-  box(group, C.stainless, 0.9, 2.1, 0.02, xW + 0.7, 1.05, zE);
-  box(group, C.stainless, 0.9, 2.1, 0.02, xE - 0.7, 1.05, zE);
-  box(group, C.brick, 0.32, H, 0.03, xc, H / 2, zE);
-  box(group, C.signBlue, 0.3, 0.3, 0.02, xc, 2.3, zE - 0.01);
+  // ---------- 後端（+z 盡頭）：窗戶加捲簾（照片：後門左手邊） ----------
+  const zB = z1 + T / 2;
+  box(group, null, K.width, sill, T, xc, sill / 2, zB, { material: wallMat });
+  box(group, null, K.width, H - top, T, xc, (top + H) / 2, zB, { material: wallMat });
+  colliders.push(makeCollider(xW, xE, z1, z1 + T, 0, H, '走廊端窗牆'));
+  const endGlass = mat(C.glass, { roughness: 0.15, transparent: true, opacity: 0.45 });
+  box(group, null, K.width - 0.1, top - sill, 0.02, xc, (top + sill) / 2, z1 - 0.01, { material: endGlass });
+  const nMull = 3;
+  for (let i = 0; i <= nMull; i++) {
+    box(group, C.frame, 0.07, top - sill, 0.08, xW + (i * K.width) / nMull, (top + sill) / 2, z1 - 0.03);
+  }
+  for (let j = 0; j < 2; j++) {
+    const bx = xW + K.width / 4 + (j * K.width) / 2;
+    box(group, null, K.width / 2 - 0.12, top + 0.05 - 1.25, 0.02, bx, (top + 0.05 + 1.25) / 2, z1 - 0.05, { material: mat(C.blind, { roughness: 0.9 }) });
+    box(group, C.blind, K.width / 2 - 0.1, 0.12, 0.1, bx, top + 0.07, z1 - 0.06);
+  }
+  const endOutside = new THREE.Mesh(new THREE.PlaneGeometry(K.width + 20, 14), mat(C.outdoor, { roughness: 1 }));
+  endOutside.rotation.y = Math.PI;
+  endOutside.position.set(xc, 5, z1 + 4);
+  group.add(endOutside);
 
   // ---------- 牆面：告示板（四角螺絲）、消防栓箱、警報鈴、開關 ----------
-  for (const z of [2.6, 3.5]) {
+  for (const z of [0.0, 0.9]) {
     box(group, C.acrylic, 0.012, 0.7, 0.6, xE - 0.006, 1.35, z);
     for (const dy of [-0.35, 0.35]) for (const dz of [-0.3, 0.3]) dot(xE - 0.014, 1.35 + dy, z + dz);
   }
   // 消防栓箱（白色，紅字條與紅色警示燈）
-  const cabZ = 7.0;
+  const cabZ = 6.0;
   box(group, C.hydrant, 0.2, 0.9, 0.9, xE - 0.1, 1.2, cabZ);
   box(group, C.hydrantRed, 0.21, 0.08, 0.6, xE - 0.1, 1.5, cabZ);
   const redLight = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), mat(C.hydrantRed, { emissive: C.hydrantRed, emissiveIntensity: 1 }));

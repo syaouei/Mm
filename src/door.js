@@ -15,9 +15,11 @@ export function doorSpans() {
   const c2 = -(room.length + room.wallThickness);
   const w = doors.front.width;
   return [
-    { name: '教室後門', z0: back0, z1: back0 + doors.back.width, double: false, inward: true },
+    { name: '教室後門', z0: back0, z1: back0 + doors.back.width, double: false, inward: true, hinge: 'z1' },
     { name: '教室前門', z0: front0, z1: front0 + w, double: true, inward: false },
     { name: '隔壁教室前門', z0: c2 - (front0 + w), z1: c2 - front0, double: true, inward: false },
+    // 隔壁教室的後門（主教室後門的鏡像），向隔壁教室內開，鉸鏈在走廊遠端那側
+    { name: '隔壁教室後門', z0: c2 - (back0 + doors.back.width), z1: c2 - back0, double: false, inward: true, hinge: 'z0' },
   ];
 }
 
@@ -25,7 +27,7 @@ export function buildDoors(scene, colliders) {
   return doorSpans().map((s) => buildDoor(scene, colliders, s));
 }
 
-function buildDoor(scene, colliders, { name, z0, z1, double, inward }) {
+function buildDoor(scene, colliders, { name, z0, z1, double, inward, hinge }) {
   const { room, doors, colors: C, interaction } = CONFIG;
   const T = room.wallThickness, W = room.width;
   const xI = -W / 2; // 教室內側牆面
@@ -57,7 +59,7 @@ function buildDoor(scene, colliders, { name, z0, z1, double, inward }) {
   // 門扇
   const leafSpecs = double
     ? [{ a: z0, b: zm, hinge: 'z0' }, { a: zm, b: z1, hinge: 'z1' }]
-    : [{ a: z0, b: z1, hinge: inward ? 'z1' : 'z0' }];
+    : [{ a: z0, b: z1, hinge: hinge || (inward ? 'z1' : 'z0') }];
   const pivots = [];
   const panels = [];
   for (const L of leafSpecs) {
