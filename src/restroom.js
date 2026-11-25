@@ -82,7 +82,10 @@ export function buildRestrooms(scene, colliders) {
     box(group, null, 0.02, 0.8, cz0 - cz1, x0 + 0.02, 1.5, (cz0 + cz1) / 2, { material: mirror });
 
     const uZ = [];
-    for (let i = 0; i < 7; i++) uZ.push(s - 3.4 - i * 0.8);
+    for (let i = 0; i < 7; i++) uZ.push(s - 4.0 - i * 0.8);
+    // 洗手台與小便斗之間的隔牆（照片與你的指示）
+    box(group, '#e6e3da', 0.9, H, 0.12, x0 + 0.45, H / 2, s - 3.5, { material: wallMat });
+    colliders.push(makeCollider(x0, x0 + 0.9, s - 3.56, s - 3.44, 0, H, '男廁洗手與小便斗隔牆'));
     const uTop = uZ[0] + 0.4, uBot = uZ[6] - 0.4;
     box(group, null, 0.8, 0.01, uTop - uBot, x0 + 0.4, 0.004, (uTop + uBot) / 2, { material: granite2 });
     box(group, '#f1f1ee', 0.14, 0.03, uTop - uBot, x0 + 0.07, 1.5, (uTop + uBot) / 2, { material: porcelain });
@@ -136,7 +139,7 @@ export function buildRestrooms(scene, colliders) {
   }
 
   // 男廁（西）：x -21.8 ~ -16.6；女廁（東）：x -16.4 ~ -11.0
-  const men = room4(-21.8, -16.6, '男', 10.0);
+  const men = room4(-21.8, -16.6, '男', 12.0);
   const women = room4(-16.4, -11.0, '女', 7.6);
   menRoom(men);
   womenRoom(women);
