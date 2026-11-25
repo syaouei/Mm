@@ -9,8 +9,8 @@
 
 export const CONFIG = {
   room: {
-    width: 9.6,   // x 方向（前牆長度）— 估計
-    length: 11.5, // z 方向（前牆到後牆）— 估計
+    width: 8.0,   // x 方向（前牆長度）— 估計
+    length: 13,   // z 方向（前牆到後牆，教室的縱深）— 估計
     height: 2.9,  // 地板到天花板 — 估計（用門高 2.1m 的比例推算約 2.7~2.9m）
     wallThickness: 0.2,
     skirtingHeight: 0.1,
@@ -37,7 +37,7 @@ export const CONFIG = {
 
   // 課桌椅排列
   layout: {
-    rows: 7,            // 前後排數 — 估計（照片看起來比 6 排多）
+    rows: 8,            // 前後排數 — 估計（照片看起來比 6 排多）
     colsPerSide: 4,     // 走道左右各幾組（每排共 colsPerSide*2 組）— 估計
     centerAisle: 1.2,   // 中央走道寬
     sideAisle: 0.8,     // 兩側靠牆通道寬
@@ -140,7 +140,7 @@ export const CONFIG = {
   // 教室外的走廊（照片：窗戶在一側、其他教室門在另一側）
   corridor: {
     width: 2.6,        // 走廊寬（教室外牆到窗戶牆）— 估計
-    frontExtend: 8.25, // 前門側（-z，教室前方）延伸多少 m — 估計
+    frontExtend: 13.4, // 前門側（-z）延伸多少 m，要涵蓋隔壁教室 — 估計
     backExtend: 3.25,  // 後門側（+z，電梯端）延伸多少 m — 估計
     windowBay: 1.6,    // 每格窗戶寬 — 估計
     windowSill: 0.8,   // 窗台高 — 估計

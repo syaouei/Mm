@@ -6,6 +6,17 @@ export function makeCollider(minX, maxX, minZ, maxZ, minY, maxY, label) {
   return { minX, maxX, minZ, maxZ, minY, maxY, label };
 }
 
+// 以 centerZ 為中心，沿 z 方向鏡像（前後對調）。用於隔壁教室：格局與主教室完全相反
+export function mirrorPlace(group, colliders, centerZ) {
+  group.scale.z = -1;
+  group.position.z = centerZ;
+  for (const c of colliders) {
+    const minZ = centerZ - c.maxZ, maxZ = centerZ - c.minZ;
+    c.minZ = minZ;
+    c.maxZ = maxZ;
+  }
+}
+
 const matCache = new Map();
 export function mat(color, extra = {}) {
   const key = color + JSON.stringify(extra);
@@ -45,7 +56,7 @@ export function gridTexture(fill, line, px = 128, lineWidth = 3) {
   return tex;
 }
 
-export function buildRoom(scene) {
+export function buildRoom(scene, opts = {}) {
   const { room, pillar, doors, colors: C, lighting } = CONFIG;
   const W = room.width, L = room.length, H = room.height, T = room.wallThickness;
   const xMin = -W / 2, xMax = W / 2, zMin = -L / 2, zMax = L / 2;
@@ -213,7 +224,8 @@ export function buildRoom(scene) {
   // ---------- 天花板設備 ----------
   const lights = buildCeiling(group, W, L, H);
 
-  // ---------- 光源 ----------
+  // ---------- 光源（只有主教室建立；隔壁教室共用光源） ----------
+  if (!opts.secondary) {
   const hemi = new THREE.HemisphereLight('#ffffff', '#c9c6bd', lighting.ambient);
   scene.add(hemi);
 
@@ -238,6 +250,8 @@ export function buildRoom(scene) {
     scene.add(p);
   }
 
+  }
+  if (opts.centerZ !== undefined) mirrorPlace(group, colliders, opts.centerZ);
   return { group, colliders };
 }
 

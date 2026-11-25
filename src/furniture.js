@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
-import { makeCollider } from './room.js';
+import { makeCollider, mirrorPlace } from './room.js';
 
 // 簡單可重現的亂數（決定每張桌面是米黃或灰白）
 function mulberry32(seed) {
@@ -78,7 +78,7 @@ export function computeLayout() {
   return { xs, zs, colGap };
 }
 
-export function buildFurniture(scene) {
+export function buildFurniture(scene, opts = {}) {
   const { desk: D, chair: Ch, colors: C, layout } = CONFIG;
   const group = new THREE.Group();
   group.name = 'furniture';
@@ -149,5 +149,6 @@ export function buildFurniture(scene) {
   }
 
   for (const b of Object.values(batches)) b.build(group);
+  if (opts.centerZ !== undefined) mirrorPlace(group, colliders, opts.centerZ);
   return { group, colliders };
 }

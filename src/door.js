@@ -11,9 +11,13 @@ export function doorSpans() {
   const { room, doors } = CONFIG;
   const back0 = room.length / 2 - doors.back.distFromBackWall - doors.back.width;
   const front0 = -room.length / 2 + doors.front.distFromFrontWall;
+  // 隔壁教室（鏡像）的前門在走廊的另一側，位置 = 鏡像後的前門
+  const c2 = -(room.length + room.wallThickness);
+  const w = doors.front.width;
   return [
     { name: '教室後門', z0: back0, z1: back0 + doors.back.width, double: false, inward: true },
-    { name: '教室前門', z0: front0, z1: front0 + doors.front.width, double: true, inward: false },
+    { name: '教室前門', z0: front0, z1: front0 + w, double: true, inward: false },
+    { name: '隔壁教室前門', z0: c2 - (front0 + w), z1: c2 - front0, double: true, inward: false },
   ];
 }
 

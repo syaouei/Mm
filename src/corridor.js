@@ -5,7 +5,7 @@ import { doorSpans } from './door.js';
 
 // 教室外的走廊（照片：窗戶在一側，教室與其他房間的門在另一側，天花板是格板燈）
 // 座標：走廊側牆面 x = xE（教室外牆）；窗戶牆內面 x = xW；走廊沿 z 方向延伸
-// 左手（+z，後門的另一側）為電梯端；右手（-z）依序是教室前門、茶水間、廁所、K410、403 多功能展演廳
+// 左手（+z，後門的另一側）為電梯端；右手（-z）是教室前門，再往前是隔壁教室
 export function buildCorridor(scene, colliders) {
   const { room, doors, corridor: K, colors: C, lighting } = CONFIG;
   const W = room.width, L = room.length, H = room.height, T = room.wallThickness;
@@ -130,12 +130,8 @@ export function buildCorridor(scene, colliders) {
 
   // ---------- 牆面裝飾：門（教室前門以外的房間）、告示板、滅火器箱 ----------
   // 每扇裝飾門：z 為中心，w 為寬，color 為門板顏色，reader 為是否有刷卡機
-  const decorDoors = [
-    { z: -8.0, w: 0.9, color: C.door, sign: '茶水間' },
-    { z: -9.8, w: 0.9, color: C.door },
-    { z: -11.6, w: 0.9, color: C.door, reader: true, sign: 'K410' },
-    { z: -13.1, w: 0.9, color: C.darkDoor, sign: '403' },
-  ];
+  // 右手邊（-z）是隔壁教室，它的門在 door.js；其餘的房間門先不放
+  const decorDoors = [];
   for (const d of decorDoors) {
     const a = d.z - d.w / 2, b = d.z + d.w / 2, x = xE - 0.015;
     box(group, C.doorFrame, 0.03, h + f, f, x, (h + f) / 2, a - f / 2);
@@ -154,7 +150,7 @@ export function buildCorridor(scene, colliders) {
   colliders.push(makeCollider(xE - 0.18, xE, cabZ - 0.21, cabZ + 0.21, 0, 1.25, '滅火器箱'));
 
   // ---------- 天花板吊掛的指示牌（綠色，橫跨走廊） ----------
-  const signZ = -6.8;
+  const signZ = 1.0;
   box(group, C.sign, K.width * 0.8, 0.35, 0.05, xc, 2.45, signZ);
   box(group, C.metal, 0.02, 0.2, 0.02, xc - 0.8, 2.7, signZ);
   box(group, C.metal, 0.02, 0.2, 0.02, xc + 0.8, 2.7, signZ);

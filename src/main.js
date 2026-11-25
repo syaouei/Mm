@@ -24,7 +24,11 @@ const camera = new THREE.PerspectiveCamera(CONFIG.render.fov, window.innerWidth 
 
 const room = buildRoom(scene);
 const furniture = buildFurniture(scene);
-const colliders = [...room.colliders, ...furniture.colliders];
+// 隔壁教室：沿 z 鏡像，格局與主教室完全相反，與主教室共用前牆
+const c2 = -(CONFIG.room.length + CONFIG.room.wallThickness);
+const room2 = buildRoom(scene, { secondary: true, centerZ: c2 });
+const furniture2 = buildFurniture(scene, { centerZ: c2 });
+const colliders = [...room.colliders, ...furniture.colliders, ...room2.colliders, ...furniture2.colliders];
 buildCorridor(scene, colliders);
 const doors = buildDoors(scene, colliders);
 
