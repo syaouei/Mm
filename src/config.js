@@ -176,6 +176,7 @@ export const CONFIG = {
 
   lobby: {
     depth: 16,  // 方形空間南北深度（從 B 的北牆往北）— 估計（依草圖比例）
+    northOffset: 4.7, // 多功能廳北牆離 zS 的距離（貼齊下行樓梯北緣）
   },
 
   // 互動

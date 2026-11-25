@@ -84,7 +84,9 @@ export function buildCorridor(scene, colliders) {
   }
 
   // ---------- 東牆（A、B 的走廊側）：北段實牆；A、B 之間的門洞；方形空間那段沒有牆 ----------
-  const eastSegs = [...solidWithHoles(zNend, zS, []), ...solidWithHoles(z0, z1, eastHoles)];
+  // 東牆：北段實牆；zS ~ zN 之間補牆（大廳北牆之前的缺口，避免看到牆後空白）；A、B 段有門洞
+  const zNn = zS + CONFIG.lobby.northOffset;
+  const eastSegs = [...solidWithHoles(zNend, zS, []), ...solidWithHoles(zS, zNn, []), ...solidWithHoles(z0, z1, eastHoles)];
   for (const [a, b] of eastSegs) {
     box(group, null, T, H, b - a, xMid, H / 2, (a + b) / 2, { material: wallMat });
     colliders.push(makeCollider(xE, xI, a, b, 0, H, '走廊東牆'));
