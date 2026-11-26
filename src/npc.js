@@ -25,7 +25,7 @@ const COL = {
 
 // 頭（橢球）半徑，以及臉部貼圖覆蓋的球面範圍（經度 ±PH、緯度 T0~T1）
 const HEAD = { rx: 0.31, ry: 0.27, rz: 0.28, y: 1.13 };
-const FACE = { PH: 1.0, T0: 0.35, T1: 2.55, N: 1024 };
+const FACE = { PH: 1.15, T0: 0.35, T1: 2.55, N: 1024 };
 
 // ---------- 材質：卡通光影（3 階）或一般材質，依 CONFIG.npc.toon ----------
 let gradientMap = null;
@@ -57,61 +57,71 @@ function faceXY(xm, ym) {
   return [((d + FACE.PH) / (2 * FACE.PH)) * FACE.N, ((theta - FACE.T0) / (FACE.T1 - FACE.T0)) * FACE.N];
 }
 
-// 一隻眼睛（以左眼畫，右眼水平鏡像）：粗黑輪廓、半蓋的上眼瞼、黑色瞳孔、外側睫毛與眉毛
-function drawEye(g, cx, cy, mirror, closed) {
+// 眼睛與眉毛（依使用者提供的表情參考）：粗眉外高內低往鼻樑壓、很粗的上眼瞼線、
+// 黑色瞳孔掛在眼瞼下、左上一點反光、下半部是白色的倒三角。
+// 形狀以公尺描述，每個點經 faceXY 換到貼圖上，畫在曲面上才不會變形。
+// side：-1 為畫面左邊那隻眼，+1 為右邊；u 往鼻樑方向為正，v 往上為正。
+const EYE = { cx: 0.16, cy: 0.0 };
+function drawEye(g, side, closed) {
+  const E = (u, v) => faceXY(side * EYE.cx - side * u, EYE.cy + v);
+  const mv = (t, u, v) => t.moveTo(...E(u, v));
+  const ln = (t, u, v) => t.lineTo(...E(u, v));
+  const qd = (t, cu, cv, u, v) => t.quadraticCurveTo(...E(cu, cv), ...E(u, v));
+  const px = (du, dv) => { const a = E(0, 0), b = E(du, dv); return Math.hypot(b[0] - a[0], b[1] - a[1]); };
   g.save();
-  g.translate(cx, cy);
-  g.scale(mirror ? -1.15 : 1.15, 1.22);
   g.lineCap = 'round';
   g.lineJoin = 'round';
   g.strokeStyle = COL.ink;
-  let lidY;
   if (!closed) {
-    const outline = new Path2D();
-    outline.moveTo(-80, -70);
-    outline.quadraticCurveTo(-5, -96, 76, -80);
-    outline.quadraticCurveTo(94, -8, 30, 70);
-    outline.quadraticCurveTo(8, 98, -18, 72);
-    outline.quadraticCurveTo(-94, 4, -80, -70);
-    outline.closePath();
+    const eye = new Path2D();
+    mv(eye, -0.07, 0.058);
+    qd(eye, 0.0, 0.066, 0.066, 0.034);
+    qd(eye, 0.082, -0.045, 0.004, -0.088);
+    qd(eye, -0.086, -0.04, -0.07, 0.058);
+    eye.closePath();
     g.fillStyle = '#ffffff';
-    g.fill(outline);
+    g.fill(eye);
     g.save();
-    g.clip(outline);
-    g.fillStyle = '#161616';
-    g.beginPath(); g.ellipse(8, 30, 44, 48, 0, 0, Math.PI * 2); g.fill();
+    g.clip(eye);
+    // 瞳孔與反光
+    const [ex, ey] = E(0.006, 0.004);
+    g.fillStyle = COL.ink;
+    g.beginPath(); g.ellipse(ex, ey, px(0.036, 0), px(0, 0.04), 0, 0, Math.PI * 2); g.fill();
+    const [hx, hy] = E(-0.03, -0.006);
     g.fillStyle = '#ffffff';
-    g.beginPath(); g.arc(-10, 12, 11, 0, Math.PI * 2); g.fill();
-    g.beginPath(); g.arc(24, 48, 5, 0, Math.PI * 2); g.fill();
-    // 上眼瞼（與臉同色）蓋住上半部：沒精神、不太耐煩的表情
+    g.beginPath(); g.arc(hx, hy, px(0.008, 0), 0, Math.PI * 2); g.fill();
+    // 上眼瞼（與臉同色）蓋住上半部
     g.fillStyle = COL.wool;
     g.beginPath();
-    g.moveTo(-130, -140); g.lineTo(130, -140); g.lineTo(130, -20);
-    g.quadraticCurveTo(0, -34, -130, -4);
+    mv(g, -0.13, 0.14); ln(g, 0.13, 0.14); ln(g, 0.13, -0.004);
+    qd(g, 0.0, 0.026, -0.13, 0.018);
     g.closePath(); g.fill();
     g.restore();
-    g.lineWidth = 12;
-    g.stroke(outline);
-    g.lineWidth = 17;
-    g.beginPath(); g.moveTo(-92, -7); g.quadraticCurveTo(0, -30, 90, -19); g.stroke();
-    lidY = -8;
+    // 很粗的上眼瞼線
+    g.lineWidth = 24;
+    g.beginPath(); mv(g, -0.086, 0.017); qd(g, 0.0, 0.026, 0.08, -0.002); g.stroke();
+    // 眼睛輪廓
+    g.lineWidth = 11;
+    g.stroke(eye);
   } else {
-    g.lineWidth = 15;
-    g.beginPath(); g.moveTo(-88, 6); g.quadraticCurveTo(0, 30, 86, 2); g.stroke();
-    lidY = 6;
+    g.lineWidth = 20;
+    g.beginPath(); mv(g, -0.084, 0.006); qd(g, 0.0, -0.018, 0.078, -0.006); g.stroke();
   }
-  // 外側睫毛
+  // 粗眉：外高內低，往鼻樑壓
+  g.fillStyle = COL.ink;
+  g.beginPath();
+  mv(g, -0.096, 0.112);
+  qd(g, 0.0, 0.094, 0.08, 0.05);
+  ln(g, 0.082, 0.036);
+  qd(g, 0.0, 0.071, -0.09, 0.086);
+  g.closePath(); g.fill();
   g.lineWidth = 9;
-  for (const [x0, y0, x1, y1] of [[-72, -4, -106, -34], [-84, 0, -122, -14], [-88, 8, -122, 14]]) {
-    g.beginPath(); g.moveTo(x0, lidY + y0); g.lineTo(x1, lidY + y1); g.stroke();
-  }
-  // 眉毛
-  g.lineWidth = 10;
-  g.beginPath(); g.moveTo(-66, -124); g.quadraticCurveTo(-4, -138, 58, -118); g.stroke();
+  g.beginPath(); mv(g, -0.09, 0.102); qd(g, -0.108, 0.099, -0.102, 0.079); g.stroke();
+  g.beginPath(); mv(g, -0.058, 0.112); ln(g, -0.084, 0.126); g.stroke();
   g.restore();
 }
 
-// 臉部貼圖（透明底）：額頭的毛、粉紅點、眼睛、鼻子、嘴巴
+// 臉部貼圖（透明底）：額頭的毛、粉紅點、眉心皺紋、眼睛與眉毛、鼻子、嘴巴
 function faceTexture(closed) {
   const c = document.createElement('canvas');
   c.width = c.height = FACE.N;
@@ -129,19 +139,23 @@ function faceTexture(closed) {
   // 粉紅點
   const [sx, sy] = P(0, 0.035);
   g.fillStyle = COL.spot;
-  g.beginPath(); g.arc(sx, sy, 40, 0, Math.PI * 2); g.fill();
-  // 眼睛
-  drawEye(g, ...P(-0.13, -0.005), false, closed);
-  drawEye(g, ...P(0.13, -0.005), true, closed);
-  // 鼻子（小黑點）與嘴巴（短橫線）
-  g.fillStyle = COL.ink;
-  const [nx, ny] = P(0, -0.125);
-  g.beginPath(); g.arc(nx, ny, 9, 0, Math.PI * 2); g.fill();
-  const [mx, my] = P(0, -0.165);
+  g.beginPath(); g.arc(sx, sy, 35, 0, Math.PI * 2); g.fill();
+  // 眉心的兩道短皺紋
   g.strokeStyle = COL.ink;
   g.lineCap = 'round';
+  g.lineWidth = 8;
+  for (const s of [-1, 1]) {
+    g.beginPath(); g.moveTo(...P(0.062 * s, 0.064)); g.lineTo(...P(0.049 * s, 0.053)); g.stroke();
+  }
+  // 眼睛與眉毛
+  drawEye(g, -1, closed);
+  drawEye(g, 1, closed);
+  // 鼻子（小黑點）與嘴巴（短而平的線）
+  g.fillStyle = COL.ink;
+  const [nx, ny] = P(0, -0.12);
+  g.beginPath(); g.arc(nx, ny, 8, 0, Math.PI * 2); g.fill();
   g.lineWidth = 10;
-  g.beginPath(); g.moveTo(mx - 95, my); g.quadraticCurveTo(mx, my + 7, mx + 95, my - 2); g.stroke();
+  g.beginPath(); g.moveTo(...P(-0.045, -0.163)); g.lineTo(...P(0.045, -0.163)); g.stroke();
   return canvasTex(c);
 }
 
