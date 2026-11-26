@@ -6,6 +6,7 @@ import { buildFurniture } from './furniture.js';
 import { buildCorridor } from './corridor.js';
 import { buildLobby } from './lobby.js';
 import { buildRestrooms } from './restroom.js';
+import { buildSheepNpc } from './npc.js';
 import { buildDoors } from './door.js';
 import { Player } from './player.js';
 import { Debug } from './debug.js';
@@ -46,6 +47,7 @@ const colliders = [
 buildCorridor(scene, colliders);
 buildLobby(scene, colliders);
 buildRestrooms(scene, colliders);
+const sheep = buildSheepNpc(scene, colliders, CONFIG.npc.sheep);
 const doors = buildDoors(scene, colliders);
 
 // 靜態場景：陰影預設只算一次，門在動的時候才重算
@@ -128,6 +130,7 @@ renderer.setAnimationLoop((t) => {
   timer.update(t);
   const dt = Math.min(timer.getDelta(), 0.1); // 分頁切回來時避免一次跳太遠
   player.update(dt);
+  sheep.update(dt);
   let moving = false;
   for (const d of doors) if (d.update(dt)) moving = true;
   if (moving) renderer.shadowMap.needsUpdate = true; // 門在動時才重算陰影
@@ -137,4 +140,4 @@ renderer.setAnimationLoop((t) => {
 });
 
 // 方便在 console 除錯
-window.__app = { scene, camera, player, colliders, CONFIG, doors };
+window.__app = { scene, camera, player, colliders, CONFIG, doors, sheep };

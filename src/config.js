@@ -181,6 +181,13 @@ export const CONFIG = {
     northOffset: 4.7, // 多功能廳北牆離 zS 的距離（貼齊下行樓梯北緣）
   },
 
+  // NPC
+  npc: {
+    toon: true,  // true：卡通光影（3 階）；false：一般材質
+    // 羊 NPC 站在方形大廳，面向西南（走廊與 B 教室的方向）
+    sheep: { x: -5.4, z: -18.6, rotY: -0.74, scale: 1.1 },
+  },
+
   // 互動
   interaction: {
     doorReach: 1.4,    // 離門多近才能開關（m）
